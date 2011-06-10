@@ -60,6 +60,10 @@
     <Compile Include="ProductionRule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemDefinition.cs" />
+    <Compile Include="Turtle\Interpreter.cs" />
+    <Compile Include="Turtle\ITurtle.cs" />
+    <Compile Include="Turtle\Modules.cs" />
+    <Compile Include="Turtle\SystemDefinition.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
