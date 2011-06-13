@@ -21,6 +21,8 @@ namespace LSystems.Turtle
         protected object LineThickness(double thickness) { return new LineThickness(thickness); }
 
         protected object MoveTo(double x, double y) { return new MoveTo(x, y); }
-        protected object MoveToRel(double x, double y) { return new MoveToRel(x, y); }        
+        protected object MoveToRel(double x, double y) { return new MoveToRel(x, y); }
+
+        public ITurtle Turtle { get; set; }
     }
 }

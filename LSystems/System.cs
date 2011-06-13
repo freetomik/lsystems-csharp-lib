@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Diagnostics;
 
 namespace LSystems
 {
@@ -27,6 +28,11 @@ namespace LSystems
                 }
                 this.decRules[d.Type].Add(d);
             }            
+        }
+
+        public object Definition
+        {
+            get { return systemDefinition; }
         }
 
         public object String
@@ -96,6 +102,25 @@ namespace LSystems
                     {
                         i -= numReplacedModules - 1;
 
+                        // DEBUG!!!!!!!!!!!!!!!!!!!!!!
+                        // TODO: may be create an event in the system,
+                        // so all replace actions can be memorized or displayed
+                        // with animation???
+                        //for (int j = 0; j < currentString.Count; ++j)
+                        //{
+                        //    Debug.Write(" ");
+                        //    if (j == i - (numReplacedModules - 1)) Debug.Write("<<<");
+                        //    Debug.Write(currentString[j].GetType().Name.Split('.').Last());
+                        //    if (j == i) Debug.Write(">>>");
+                        //}
+                        //Debug.Write(", " + rule.Method.Name + ", right: ");                        
+                        //for (int j = 0; j < newString.Count; ++j)
+                        //{
+                        //    Debug.Write(" " + newString[j].GetType().Name.Split('.').Last());
+                        //}
+                        //Debug.WriteLine(string.Empty);
+                        // DEBUG!!!!!!!!!!!!!!!!!!!!!!
+
                         if (replacement is EmptyModule)
                         {
                             // Do nothing, Strict is removed from new string.
@@ -108,7 +133,26 @@ namespace LSystems
                             goto endOfReplacement;
                         }
                     }
-                }
+                }               
+
+                // DEBUG!!!!!!!!!!!!!!!!!!!!!!
+                // TODO: may be create an event in the system,
+                // so all replace actions can be memorized or displayed
+                // with animation???
+                //for (int j = 0; j < currentString.Count; ++j)
+                //{
+                //    Debug.Write(" ");
+                //    if (j == i) Debug.Write("<<<");
+                //    Debug.Write(currentString[j].GetType().Name.Split('.').Last());
+                //    if (j == i) Debug.Write(">>>");
+                //}
+                //Debug.Write(", copy, right: ");
+                //for (int j = 0; j < newString.Count; ++j)
+                //{
+                //    Debug.Write(" " + newString[j].GetType().Name.Split('.').Last());                    
+                //}
+                //Debug.WriteLine(string.Empty);
+                // DEBUG!!!!!!!!!!!!!!!!!!!!!!
 
                 // No replacement were found, 
                 // copy old module to the new string.
