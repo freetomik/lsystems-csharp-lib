@@ -10,7 +10,11 @@ namespace LSystems
     {
         public static List<object> ObjectAsList(this object obj)
         {
-            if (obj is IEnumerable)
+            if (obj == null)
+            {
+                return null;
+            }
+            else if (obj is IEnumerable)
             {
                 return (from object o in (obj as IEnumerable) select o).ToList();
             }

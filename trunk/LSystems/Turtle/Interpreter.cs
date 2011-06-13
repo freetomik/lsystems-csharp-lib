@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Collections;
+using System.Reflection;
 
 namespace LSystems.Turtle
 {
@@ -18,7 +19,7 @@ namespace LSystems.Turtle
         }
 
         public Interpreter()
-        {
+        {            
             Register<StartBranchModule>(p => Turtle.Push());
             Register<EndBranchModule>(p => Turtle.Pop());
             Register<F>(p => Turtle.Forward(p.Value, true));
@@ -30,17 +31,50 @@ namespace LSystems.Turtle
             Register<LineThickness>(p => Turtle.LineThickness(p.Value));
             Register<LineColor>(p => Turtle.LineColor(p.Value.R, p.Value.G, p.Value.B));
         }
+        
+        public void RegisterExternalFunctions(object interpreter)
+        {
+            foreach (var method in interpreter.GetType().GetMethods())
+            {
+                InterpretAttribute i =
+                   (InterpretAttribute)Attribute.GetCustomAttribute(method, typeof(InterpretAttribute), false);
 
+                if (i == null)
+                {
+                    continue;
+                }
+
+                if (1 != method.GetParameters().Count())
+                {
+                    throw new InvalidOperationException("Interpret rule must have 1 parameter.");
+                }
+
+                if (method.ReturnType != typeof(void))
+                {
+                    throw new InvalidOperationException("Interpret rule must return void.");
+                }
+
+                Type paramType = method.GetParameters()[0].ParameterType;
+                MethodInfo mi = method;
+                Action<object> action = 
+                    p => mi.Invoke(interpreter, new object [] { p });
+
+                this.registeredTypes[paramType] = action;
+            }
+        }
+        
         public void Interpret(ITurtle turtle, IEnumerable modules)
         {
+            this.Turtle = turtle;
             foreach (var module in modules)
             {
-                Action<object> action;
-                if (registeredTypes.TryGetValue(module.GetType(), out action))
+                Action<object> action = null;
+                if (this.registeredTypes.TryGetValue(module.GetType(), out action))
                 {
                     action(module);
                 }
             }
+            this.Turtle = null;
         }
     }
 }

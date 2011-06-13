@@ -14,7 +14,7 @@ namespace LSystems
         protected Type[] Strict { get; set; }
         protected Type[] Right { get; set; }
         protected Type[] NewRight { get; set; }
-        protected MethodInfo Method { get; set; }
+        public MethodInfo Method { get; set; }
         protected Type[] IgnoreList { get; set; }
 
         public static ProductionRule GenerateRule(MethodInfo method)

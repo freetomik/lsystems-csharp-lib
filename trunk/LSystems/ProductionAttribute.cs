@@ -14,6 +14,11 @@ namespace LSystems
             this.Schema = schema;
         }
 
+        public ProductionAttribute()
+        {
+            this.Schema = string.Empty;
+        }
+
         public string Schema { get; set; }
 
         private static Regex productionRegex = new Regex(@"^([a-z,A-Z,0-9,\ ]*<{2})?([a-z,A-Z,0-9,\ ]*<)?([a-z,A-Z,0-9,\ ]+)(>[a-z,A-Z,0-9,\ ]*)?(>{2}[a-z,A-Z,0-9,\ ]*)?$");
@@ -36,29 +41,38 @@ namespace LSystems
                 throw new InvalidOperationException("Production rule must have parameters.");
             }
 
-            Match match = productionRegex.Match(this.Schema);
-            if (!match.Success)
+            string[] newLeft, left, strict, right, newRight;
+
+            if (this.Schema == string.Empty)
             {
-                throw new InvalidOperationException("Production string is not correct (Regex match failure).");
+                newLeft = left = right = newRight = new string[] {};
+                strict = (from ParameterInfo p in method.GetParameters() select p.Name).ToArray();
             }
-
-            if (match.Groups.Count != 6)
+            else
             {
-                throw new InvalidOperationException("Internal error while parsing production.");
-            }
+                Match match = productionRegex.Match(this.Schema);
+                if (!match.Success)
+                {
+                    throw new InvalidOperationException("Production string is not correct (Regex match failure).");
+                }
 
-            var newLeft = FindNames(match.Groups[1].Value, "<<");
-            var left = FindNames(match.Groups[2].Value, "<");
-            var strict = FindNames(match.Groups[3].Value, String.Empty);
-            var right = FindNames(match.Groups[4].Value, ">");
-            var newRight = FindNames(match.Groups[5].Value, ">>");
+                if (match.Groups.Count != 6)
+                {
+                    throw new InvalidOperationException("Internal error while parsing production.");
+                }
 
-            var allItems = newLeft.Concat(left).Concat(strict).Concat(right).Concat(newRight).ToArray();
-            var methodParametersNames = (from ParameterInfo info in method.GetParameters() select info.Name).ToArray();
+                newLeft = FindNames(match.Groups[1].Value, "<<");
+                left = FindNames(match.Groups[2].Value, "<");
+                strict = FindNames(match.Groups[3].Value, String.Empty);
+                right = FindNames(match.Groups[4].Value, ">");
+                newRight = FindNames(match.Groups[5].Value, ">>");            
 
-            if (!allItems.SequenceEqual(methodParametersNames))
-            {
-                throw new InvalidOperationException("List of parameters in production do not match to list of method parameters.");
+                var allItems = newLeft.Concat(left).Concat(strict).Concat(right).Concat(newRight).ToArray();
+                var methodParametersNames = (from ParameterInfo info in method.GetParameters() select info.Name).ToArray();
+                if (!allItems.SequenceEqual(methodParametersNames))
+                {
+                    throw new InvalidOperationException("List of parameters in production do not match to list of method parameters.");
+                }
             }
 
             var parametersList = method.GetParameters().ToList();

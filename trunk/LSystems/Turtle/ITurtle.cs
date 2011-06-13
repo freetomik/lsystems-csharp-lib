@@ -12,5 +12,6 @@ namespace LSystems.Turtle
         void Turn(double u);
         void LineThickness(double thickness);
         void LineColor(double r, double g, double b);
+        void LineParameters(double thickness, double r, double g, double b);
     }
 }

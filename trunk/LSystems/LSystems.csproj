@@ -61,6 +61,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SystemDefinition.cs" />
     <Compile Include="Turtle\Interpreter.cs" />
+    <Compile Include="Turtle\InterprtetAttribute.cs" />
     <Compile Include="Turtle\ITurtle.cs" />
     <Compile Include="Turtle\Modules.cs" />
     <Compile Include="Turtle\SystemDefinition.cs" />

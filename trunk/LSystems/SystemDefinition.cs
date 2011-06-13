@@ -26,5 +26,15 @@ namespace LSystems
         {
             return modules.ToList();
         }
+
+        public virtual object Axiom
+        {
+            get { return null; }
+        }
+
+        public virtual int Depth
+        {
+            get { return 1; }
+        }
     }
 }
