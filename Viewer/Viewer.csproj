@@ -95,11 +95,14 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestData\DragonCurve.cs" />
+    <EmbeddedResource Include="TestData\DragonCurve.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Compile Include="TestData\Leaf.cs" />
     <Compile Include="TestData\LplusCTree.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+    <Compile Include="ViewModel\IOService.cs" />
+    <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="View\Turtle2d.cs" />
     <Compile Include="View\TurtleDisplay.cs" />
   </ItemGroup>

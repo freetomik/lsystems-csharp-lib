@@ -64,7 +64,7 @@ namespace Viewer.ViewModel
                 }
             }
 
-            NotifyPropertyChanged("String");
+            NotifyPropertyChanged("System");
         }
     }
 }
