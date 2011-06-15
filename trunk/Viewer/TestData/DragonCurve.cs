@@ -1,4 +1,7 @@
-﻿using System;
+﻿#pragma reference "System.Core.dll"
+#pragma reference "LSystems.dll"
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

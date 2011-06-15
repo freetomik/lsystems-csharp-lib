@@ -18,7 +18,7 @@
         <GridSplitter Grid.Column="1" Grid.Row="1" ResizeDirection="Columns" HorizontalAlignment="Stretch"/>
         
         <DockPanel Grid.ColumnSpan="3">
-            <Button Padding="10 3 10 3"  Content="..." DockPanel.Dock="Right"/>
+            <Button Padding="10 3 10 3"  Content="..." DockPanel.Dock="Right" Command="{Binding OpenFileCommand}"/>
             <TextBox IsReadOnly="true" Text="{Binding FileName, Mode=OneWay}"/>
         </DockPanel>
         

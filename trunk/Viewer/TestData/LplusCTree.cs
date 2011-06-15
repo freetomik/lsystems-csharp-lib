@@ -1,5 +1,4 @@
-﻿// This is an example from L+C description, strange,
-// but InternodeGrow3 is never called.
+﻿// This is an example from L+C description.
 
 using System;
 using LSystems;
@@ -80,21 +79,13 @@ namespace SystemDefinitionsTest
             return new Internode(i.Length * LengthGrowRate, i2.Area);
         }
 
-        [LSystems.Production("i >> a")]
-        [LSystems.Ignore(new [] { typeof(LSystems.Turtle.R) })]
-        public object InternodeGrow3(Internode i, A a)
-        {
-            return new Internode(i.Length * LengthGrowRate, i.Area);
-        }
-
         [LSystems.Decomposition]
         public object MetamerGrow(Metamer meta)
         {
             return Produce(
                 new Internode(1, 1),
-                StartBranch,
-                R(meta.Angle),
-                new A(-Delay, meta.Angle),
+                StartBranch, 
+                R(meta.Angle), new A(-Delay, meta.Angle),
                 EndBranch,
                 new Internode(1, 1));
         }
@@ -102,6 +93,12 @@ namespace SystemDefinitionsTest
         [LSystems.Turtle.Interpret]
         public void DrawInternode(Internode i)
         {
+            if (i.Length < 1)
+                Turtle.LineColor(0, 1, 0);
+            else if (i.Length < 3)
+                Turtle.LineColor(0, 0.5, 0);
+            else
+                Turtle.LineColor(0.2, 0.1, 0);
             Turtle.LineThickness(Math.Pow(i.Area, 0.5));
             Turtle.Forward(i.Length, true);
         }        

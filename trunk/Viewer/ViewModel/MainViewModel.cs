@@ -6,17 +6,17 @@ using System.Collections.ObjectModel;
 using System.CodeDom.Compiler;
 using Microsoft.CSharp;
 using System.Reflection;
-using System.IO;
 using System.Text.RegularExpressions;
+using System.Windows.Input;
 
 namespace Viewer.ViewModel
 {
     public class MainViewModel : BaseViewModel
     {
+        private IOService ioService;
         private string fileName;
         private string compileError;
-        private ObservableCollection<SystemDefinitionViewModel> definitions = 
-            new ObservableCollection<SystemDefinitionViewModel>();
+        private ObservableCollection<SystemDefinitionViewModel> definitions;
         private SystemDefinitionViewModel selectedType;
 
 
@@ -76,11 +76,31 @@ namespace Viewer.ViewModel
             }
         }
 
+        public ICommand OpenFileCommand
+        {
+            get { return new RelayCommand(p => LoadFile()); }
+        }        
+
+        public MainViewModel(IOService ioService)
+        {
+            this.ioService = ioService;
+            this.definitions = new ObservableCollection<SystemDefinitionViewModel>();
+        }
+
+        private void LoadFile()
+        {           
+            string filename = ioService.OpenFileDialog(System.IO.Directory.GetCurrentDirectory());
+            if (filename.Length > 0)
+            {
+                Load(filename);
+            }
+        }
 
         public void LoadSelf()
         {
             this.FileName = "Self";
             this.CompileError = string.Empty;
+            this.ioService.SubscribeForFileChanges(string.Empty, null);
 
             Assembly currentAssembly = Assembly.GetCallingAssembly();
 
@@ -89,19 +109,25 @@ namespace Viewer.ViewModel
 
         public void Load(string fileName)
         {
-            this.FileName = fileName;
-            this.CompileError = string.Empty;
-            
             Assembly assembly = Compile(fileName);
-
             if (assembly != null)
             {
+                this.FileName = fileName;
+                this.CompileError = string.Empty;
+                this.ioService.SubscribeForFileChanges(fileName, this.Reload);
+            
                 ExtractSystemDefinitions(assembly);
-            }
+            }            
+        }
+
+        private void Reload()
+        {
+            this.Dispatcher.BeginInvoke(new System.Threading.ThreadStart(delegate() { this.Load(this.FileName); }));
         }
 
         private void ExtractSystemDefinitions(Assembly assembly)
         {
+            this.SelectedType = null;
             this.definitions.Clear();
             foreach (var t in assembly.GetTypes())
             {
@@ -114,29 +140,28 @@ namespace Viewer.ViewModel
             this.SelectedType = this.definitions.Count > 0 ? this.definitions[0] : null;
         }
 
+        // Compile source code mainly taken from Phil Trelford's Array, see
+        // http://www.trelford.com/blog/post/C-Scripting.aspx
         private Assembly Compile(string fileName)
         {
-            // Check if file is present.
-            if (!File.Exists(fileName))
-            {
-                this.CompileError = "Specified file does not exist.";
-                return null;
-            }
-
             // Read source from file
-            string source = ReadFile(fileName);
+            string source = ioService.ReadFileContent(fileName);
+            if (source.Length <= 0)
+            {                
+                this.CompileError = "Specified file does not exist or empty.";
+                return null;                
+            }
 
             // Initialize compiler options.
             CompilerParameters compilerParameters = new CompilerParameters()
-            {
-                //GenerateExecutable = false,
+            {     
                 GenerateInMemory = true,
                 TreatWarningsAsErrors = true,
                 CompilerOptions = "/nowarn:1633"
             };
 
             // Check source for #pragma reference statements        
-            StringReader reader = new StringReader(source);
+            var reader = new System.IO.StringReader(source);
             while (true)
             {
                 string line = reader.ReadLine();
@@ -176,14 +201,6 @@ namespace Viewer.ViewModel
             
 
             return results.CompiledAssembly;
-        }
-
-        private static string ReadFile(string path)
-        {
-            using (StreamReader reader = File.OpenText(path))
-            {
-                return reader.ReadToEnd();
-            }
-        }
+        }        
     }
 }

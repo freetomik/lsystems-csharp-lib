@@ -26,7 +26,7 @@ namespace Viewer.TestData
 
         public override int Depth
         {
-            get { return 8; }
+            get { return 5; }
         }
 
         [LSystems.Production]
@@ -48,7 +48,7 @@ namespace Viewer.TestData
         [LSystems.Turtle.Interpret]
         public void DrawA(a m)
         {
-            this.Turtle.LineParameters(3, 0, 0.7, 0);
+            this.Turtle.LineParameters(5, 0, 0.7, 0);
             this.Turtle.Forward(this.Distance, true);
         }
 
