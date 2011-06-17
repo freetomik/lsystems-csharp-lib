@@ -8,7 +8,7 @@ namespace Viewer.TestData
     public class i { }
     public class a { }
 
-    public class Leaf : LSystems.Turtle.SystemDefintion
+    public class Leaf : LSystems.Turtle.SystemDefintion, LSystems.IRewriteRules
     {
         public double Angle { get; set; }
         public double Distance { get; set; }
@@ -19,14 +19,19 @@ namespace Viewer.TestData
             this.Distance = 10;
         }
 
-        public override object Axiom
+        public object Axiom
         {
             get { return Produce(L(90), new i()); }
         }
 
-        public override int Depth
+        public int Depth
         {
             get { return 5; }
+        }
+
+        public LSystems.RewriteDirection RewriteDirection
+        {
+            get { return LSystems.RewriteDirection.LeftToRight; }
         }
 
         [LSystems.Production]

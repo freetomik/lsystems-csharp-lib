@@ -53,16 +53,33 @@ namespace Viewer.ViewModel
             }
 
             // Iterate.
-            system.String = definition.Axiom;
-            
-            if (system.String != null)
+            LSystems.IRewriteRules rules = definition as LSystems.IRewriteRules;
+            if (rules != null)
             {
-                for (int i = 0; i < definition.Depth; ++i)
+                system.String = rules.Axiom;
+
+                if (system.String != null)
                 {
-                    system.RewriteRightToLeft();
-                    system.Decomposite();
+                    for (int i = 0; i < rules.Depth; ++i)
+                    {
+                        switch (rules.RewriteDirection)
+                        {
+                            case LSystems.RewriteDirection.LeftToRight:
+                                system.RewriteLeftToRight();
+                                break;
+
+                            case LSystems.RewriteDirection.RightToLeft:
+                                system.RewriteRightToLeft();
+                                break;
+
+                            default:
+                                throw new InvalidOperationException("Unknown RewriteDirection");
+                        }
+                        
+                        system.Decomposite();
+                    }
                 }
-            }
+            }            
 
             NotifyPropertyChanged("System");
         }

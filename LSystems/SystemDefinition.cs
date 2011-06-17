@@ -25,16 +25,6 @@ namespace LSystems
         protected object Produce(params object[] modules)
         {
             return modules.ToList();
-        }
-
-        public virtual object Axiom
-        {
-            get { return null; }
-        }
-
-        public virtual int Depth
-        {
-            get { return 1; }
-        }
+        }        
     }
 }

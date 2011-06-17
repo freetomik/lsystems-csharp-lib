@@ -37,13 +37,13 @@ namespace SystemDefinitionsTest
         }
     }
 
-    public class LplusCTree : LSystems.Turtle.SystemDefintion
+    public class LplusCTree : LSystems.Turtle.SystemDefintion, LSystems.IRewriteRules
     {
         public const double Delay = 1;
         public const double BranchingAngle = 45;
         public const double LengthGrowRate = 1.33;
 
-        public override object Axiom
+        public object Axiom
         {
             get
             {
@@ -51,9 +51,14 @@ namespace SystemDefinitionsTest
             }
         }
 
-        public override int Depth
+        public int Depth
         {
             get { return 17; }
+        }
+
+        public LSystems.RewriteDirection RewriteDirection
+        {
+            get { return LSystems.RewriteDirection.RightToLeft; }
         }
         
         [LSystems.Production]        

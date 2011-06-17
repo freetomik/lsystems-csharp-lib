@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Viewer.TestData
 {
-    public class DragonCurve : LSystems.Turtle.SystemDefintion
+    public class DragonCurve : LSystems.Turtle.SystemDefintion, LSystems.IRewriteRules
     {
         public class l { };
         public class r { };
@@ -44,14 +44,19 @@ namespace Viewer.TestData
                 new r());
         }
 
-        public override object Axiom
+        public object Axiom
         {
             get { return Produce(F(), new l()); }
         }
 
-        public override int Depth
+        public int Depth
         {
             get { return 10; }
+        }
+
+        public LSystems.RewriteDirection RewriteDirection
+        {
+            get { return LSystems.RewriteDirection.LeftToRight; }
         }
     }
 }

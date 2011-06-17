@@ -53,6 +53,7 @@
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="ForwardEnumerator.cs" />
     <Compile Include="IgnoreAttribute.cs" />
+    <Compile Include="IRewriteRules.cs" />
     <Compile Include="StartBranchModule.cs" />
     <Compile Include="System.cs" />
     <Compile Include="SystemBuilder.cs" />
