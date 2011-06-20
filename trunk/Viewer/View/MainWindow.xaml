@@ -22,12 +22,63 @@
             <TextBox IsReadOnly="true" Text="{Binding FileName, Mode=OneWay}"/>
         </DockPanel>
         
-        <Border Grid.Row="1" Background="LightGoldenrodYellow">            
+        <Border Grid.Row="1">
             <Grid>
-                <Viewbox StretchDirection="DownOnly">
-                    <view:TurtleDisplay System="{Binding SelectedType.System}"/>
-                </Viewbox>
-                <TextBlock Text="{Binding CompileError}"/>
+                <TabControl>
+                    <TabItem Header="3d">
+                        <Grid Background="LightGoldenrodYellow">
+                            <view:TurtleDisplay3d                                              
+                                System="{Binding SelectedType.System}"
+                                ClipToBounds="True" 
+                                HorizontalAlignment="Stretch" 
+                                VerticalAlignment="Stretch">
+
+                                <Viewport3D.Camera>
+                                    <PerspectiveCamera
+                                        LookDirection="0,0,-20"
+                                        UpDirection="0,1,0"
+                                        Position="0,0,500"/>
+                                    
+                                    <!--<OrthographicCamera
+                                        LookDirection="0, 0, -20"
+                                        UpDirection="0,1,0"
+                                        Position="0,0,500"
+                                        Width="1000"/>-->
+                                        
+                                        
+                                </Viewport3D.Camera>
+                                
+                                <ModelVisual3D>
+                                    <ModelVisual3D.Content>
+                                        <Model3DGroup x:Name="group3d">
+                                            <DirectionalLight 
+                                                Direction="0, 0, -1"                                               
+                                                Color="White"
+                                                />
+                                            <!--<SpotLight 
+                                                Position="0,0,100" 
+                                                x:Name="mySpotLight" 
+                                                Color="White"  
+                                                InnerConeAngle="100" 
+                                                OuterConeAngle="100" 
+                                                Range="100"/>-->
+                                            
+                                            
+                                        </Model3DGroup>
+                                    </ModelVisual3D.Content>
+                                </ModelVisual3D>
+                            </view:TurtleDisplay3d>
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="2d">
+                        <Grid Background="LightGoldenrodYellow">
+                            <Viewbox StretchDirection="DownOnly">
+                                <view:TurtleDisplay System="{Binding SelectedType.System}"/>
+                            </Viewbox>
+                        </Grid>
+                    </TabItem>
+                </TabControl>
+                <TextBlock Text="{Binding CompileError}" VerticalAlignment="Bottom"/>
             </Grid>            
         </Border>
         

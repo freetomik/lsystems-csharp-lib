@@ -43,6 +43,30 @@ namespace LSystems.Turtle
         public R() { }        
     }
 
+    public class PitchUp : Module<double>
+    {
+        public PitchUp(double angle) : base(angle) { }
+        public PitchUp() { }
+    }
+
+    public class PitchDown : Module<double>
+    {
+        public PitchDown(double angle) : base(angle) { }
+        public PitchDown() { }
+    }
+
+    public class RollLeft : Module<double>
+    {
+        public RollLeft(double angle) : base(angle) { }
+        public RollLeft() { }
+    }
+
+    public class RollRight : Module<double>
+    {
+        public RollRight(double angle) : base(angle) { }
+        public RollRight() { }
+    }
+
     public struct Point
     {
         public double X { get; set; }

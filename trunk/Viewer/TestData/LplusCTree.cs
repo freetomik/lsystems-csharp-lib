@@ -6,11 +6,11 @@ using System.Collections;
 
 namespace SystemDefinitionsTest
 {
-    public class A
+    public class Axis
     {
         public double Length { get; private set; }
         public double Angle { get; private set; }
-        public A(double l, double a)
+        public Axis(double l, double a)
         {
             this.Length = l;
             this.Angle = a;
@@ -47,7 +47,7 @@ namespace SystemDefinitionsTest
         {
             get
             {
-                return Produce(L(90), new A(0, BranchingAngle));
+                return Produce(L(90), new Axis(0, BranchingAngle));
             }
         }
 
@@ -62,12 +62,12 @@ namespace SystemDefinitionsTest
         }
         
         [LSystems.Production]        
-        public object ApexGrow(A a)
+        public object ApexGrow(Axis a)
         {
             if (a.Length < 0)
-                return new A(a.Length + 1, a.Angle);
+                return new Axis(a.Length + 1, a.Angle);
             else
-                return Produce(new Metamer(a.Angle), new A(0, -a.Angle));
+                return Produce(new Metamer(a.Angle), new Axis(0, -a.Angle));
         }
         
         [LSystems.Production("i >> sb i2 eb i3")]
@@ -90,7 +90,7 @@ namespace SystemDefinitionsTest
             return Produce(
                 new Internode(1, 1),
                 StartBranch, 
-                R(meta.Angle), new A(-Delay, meta.Angle),
+                R(meta.Angle), new Axis(-Delay, meta.Angle),
                 EndBranch,
                 new Internode(1, 1));
         }
@@ -98,13 +98,10 @@ namespace SystemDefinitionsTest
         [LSystems.Turtle.Interpret]
         public void DrawInternode(Internode i)
         {
-            if (i.Length < 1)
-                Turtle.LineColor(0, 1, 0);
-            else if (i.Length < 3)
-                Turtle.LineColor(0, 0.5, 0);
-            else
-                Turtle.LineColor(0.2, 0.1, 0);
-            Turtle.LineThickness(Math.Pow(i.Area, 0.5));
+            if (i.Length < 1) Turtle.SetColor(0, 1, 0);
+            else if (i.Length < 3) Turtle.SetColor(0, 0.5, 0);
+            else Turtle.SetColor(0.2, 0.1, 0);
+            Turtle.SetThickness(Math.Pow(i.Area, 0.5));
             Turtle.Forward(i.Length, true);
         }        
     }

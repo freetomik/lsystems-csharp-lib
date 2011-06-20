@@ -53,14 +53,14 @@ namespace Viewer.TestData
         [LSystems.Turtle.Interpret]
         public void DrawA(a m)
         {
-            this.Turtle.LineParameters(5, 0, 0.7, 0);
+            this.Turtle.SetThicknessAndColor(5, 0, 0.7, 0);
             this.Turtle.Forward(this.Distance, true);
         }
 
         [LSystems.Turtle.Interpret]
         public void DrawI(i m)
         {
-            this.Turtle.LineParameters(1, 1, 0, 0);
+            this.Turtle.SetThicknessAndColor(1, 1, 0, 0);
             this.Turtle.Forward(this.Distance, true);
         }
     }
