@@ -26,10 +26,14 @@ namespace LSystems.Turtle
             Register<f>(p => Turtle.Forward(p.Value, false));
             Register<L>(p => Turtle.Turn(p.Value));
             Register<R>(p => Turtle.Turn(-p.Value));
-            Register<MoveTo>(p => Turtle.Move(p.Value.X, p.Value.Y));
-            Register<MoveToRel>(p => Turtle.MoveRel(p.Value.X, p.Value.Y));
-            Register<LineThickness>(p => Turtle.LineThickness(p.Value));
-            Register<LineColor>(p => Turtle.LineColor(p.Value.R, p.Value.G, p.Value.B));
+            Register<PitchUp>(p => Turtle.Pitch(p.Value));
+            Register<PitchDown>(p => Turtle.Pitch(-p.Value));
+            Register<RollLeft>(p => Turtle.Roll(p.Value));
+            Register<RollRight>(p => Turtle.Roll(-p.Value));
+            Register<MoveTo>(p => Turtle.Move(p.Value.X, p.Value.Y, 0));
+            Register<MoveToRel>(p => Turtle.MoveRel(p.Value.X, p.Value.Y, 0));
+            Register<LineThickness>(p => Turtle.SetThickness(p.Value));
+            Register<LineColor>(p => Turtle.SetColor(p.Value.R, p.Value.G, p.Value.B));
         }
         
         public void RegisterExternalFunctions(object interpreter)

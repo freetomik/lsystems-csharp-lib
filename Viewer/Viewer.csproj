@@ -101,10 +101,12 @@
     <Compile Include="TestData\Leaf.cs" />
     <Compile Include="TestData\LplusCTree.cs">
     </Compile>
+    <Compile Include="TestData\Tree3d.cs" />
     <Compile Include="ViewModel\IOService.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
     <Compile Include="View\Turtle2d.cs" />
     <Compile Include="View\TurtleDisplay.cs" />
+    <Compile Include="View\TurtleDisplay3d.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LSystems\LSystems.csproj">

@@ -81,12 +81,12 @@ namespace Viewer.View
             this.Position = newPosition;
         }
 
-        public void Move(double x, double y)
+        public void Move(double x, double y, double z)
         {
             this.Position = new Point(x, y);
         }
 
-        public void MoveRel(double x, double y)
+        public void MoveRel(double x, double y, double z)
         {
             Point newPosition = this.Position;
 
@@ -95,17 +95,25 @@ namespace Viewer.View
             this.Position = newPosition;
         }
 
-        public void Turn(double u)
+        public void Turn(double angle)
         {
-            this.Angle += u;
+            this.Angle += angle;
         }
 
-        public void LineThickness(double thickness)
+        public void Pitch(double angle)
+        {            
+        }
+
+        public void Roll(double angle)
+        {        
+        }
+
+        public void SetThickness(double thickness)
         {
             this.pen = new Pen(this.pen.Brush, thickness);
         }
 
-        public void LineColor(double r, double g, double b)
+        public void SetColor(double r, double g, double b)
         {
             this.pen = new Pen(
                 new SolidColorBrush(Color.FromRgb(
@@ -114,7 +122,7 @@ namespace Viewer.View
                 (byte)(255 * b))), this.pen.Thickness);
         }
 
-        public void LineParameters(double thickness, double r, double g, double b)
+        public void SetThicknessAndColor(double thickness, double r, double g, double b)
         {
             Color color = Color.FromRgb(
                 (byte)(255 * r),
@@ -152,9 +160,7 @@ namespace Viewer.View
             if (lSystem.Definition is LSystems.Turtle.SystemDefintion)
             {
                 ((LSystems.Turtle.SystemDefintion)lSystem.Definition).Turtle = turtle;
-            }
-
-            
+            }            
 
             var interpreter = new LSystems.Turtle.Interpreter();
 
