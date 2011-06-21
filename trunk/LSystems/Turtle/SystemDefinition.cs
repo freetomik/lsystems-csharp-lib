@@ -17,6 +17,18 @@ namespace LSystems.Turtle
         protected object L() { return new L(); }
         protected object L(double angle) { return new L(angle); }
 
+        protected object PitchUp() { return new PitchUp(); }
+        protected object PitchUp(double angle) { return new PitchUp(angle); }
+
+        protected object PitchDown() { return new PitchDown(); }
+        protected object PitchDown(double angle) { return new PitchDown(angle); }
+
+        protected object RollLeft() { return new RollLeft(); }
+        protected object RollLeft(double angle) { return new RollLeft(angle); }
+
+        protected object RollRight() { return new RollRight(); }
+        protected object RollRight(double angle) { return new RollRight(angle); }
+
         protected object LineColor(double r, double g, double b) { return new LineColor(r, g, b); }
         protected object LineThickness(double thickness) { return new LineThickness(thickness); }
 
