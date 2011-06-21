@@ -260,7 +260,7 @@ namespace Viewer.View
             else
             {
                 Transform3DGroup group = new Transform3DGroup();
-                group.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 0, 1), -90)));
+                group.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 0, 1), 0)));
                 group.Children.Add(new TranslateTransform3D());
                 stack.Push(group);
             }
@@ -273,7 +273,7 @@ namespace Viewer.View
 
         public void Forward(double distance, bool drawLine)
         {
-            var offset = stack.Peek().Children[0].Transform(new Point3D(0, distance / 2, 0));
+            var offset = stack.Peek().Children[0].Transform(new Point3D(distance / 2, 0, 0));
             var currentPosition = stack.Peek().Children[1].Transform(new Point3D(0, 0, 0));
 
             if (drawLine)
@@ -281,7 +281,7 @@ namespace Viewer.View
                 (this.Children.Last() as ModelVisual3D).Children.Add(
                     CreateCube(
                         this.material
-                        , new ScaleTransform3D(this.thickness, distance, this.thickness)
+                        , new ScaleTransform3D(distance, this.thickness, this.thickness)
                         , stack.Peek().Children[0].Clone()
                         , new TranslateTransform3D(currentPosition.X + offset.X, currentPosition.Y + offset.Y, currentPosition.Z + offset.Z)
                         ));
@@ -313,14 +313,14 @@ namespace Viewer.View
         {
             stack.Peek().Children[0] = new MatrixTransform3D(
                 new RotateTransform3D(
-                    new AxisAngleRotation3D(new Vector3D(1, 0, 0), angle)).Value * stack.Peek().Children[0].Value);
+                    new AxisAngleRotation3D(new Vector3D(0, 1, 0), angle)).Value * stack.Peek().Children[0].Value);
         }
 
         public void Roll(double angle)
         {
             stack.Peek().Children[0] = new MatrixTransform3D(
                 new RotateTransform3D(
-                    new AxisAngleRotation3D(new Vector3D(0, 1, 0), angle)).Value * stack.Peek().Children[0].Value);
+                    new AxisAngleRotation3D(new Vector3D(1, 0, 0), angle)).Value * stack.Peek().Children[0].Value);
         }
 
         public void SetThickness(double thickness)
