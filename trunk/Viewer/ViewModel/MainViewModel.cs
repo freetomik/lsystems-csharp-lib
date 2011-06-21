@@ -131,7 +131,7 @@ namespace Viewer.ViewModel
             this.definitions.Clear();
             foreach (var t in assembly.GetTypes())
             {
-                if (t.IsSubclassOf(typeof(LSystems.SystemDefinition)))
+                if (!t.IsAbstract && t.IsSubclassOf(typeof(LSystems.SystemDefinition)))
                 {
                     this.definitions.Add(new SystemDefinitionViewModel(t));
                 }
