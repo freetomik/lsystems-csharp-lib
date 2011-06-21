@@ -1,4 +1,5 @@
 ﻿// This is an example from L+C description.
+// http://algorithmicbotany.org/papers/l+c.tcs2003.pdf
 
 using System;
 using LSystems;

@@ -80,8 +80,13 @@ namespace Viewer.View
                 return;
             }
 
+            UpdateTransform();            
+        }
+
+        private void UpdateTransform()
+        {
             Transform3DGroup transformGroup = new Transform3DGroup();
-            
+
             transformGroup.Children.Add(
                 new RotateTransform3D(
                     new AxisAngleRotation3D(new Vector3D(0, 1, 0), this.rotateOffset.X * 0.3)));
@@ -156,6 +161,15 @@ namespace Viewer.View
                     ((LSystems.Turtle.SystemDefintion)lSystem.Definition).Turtle = null;
                 }
             }
+
+
+            // Update camera position and offset, so that complete object will be visible.
+            this.translateOffset.Y = bounds.Bottom - bounds.Height / 2;
+            this.UpdateTransform();
+
+            Point3D pos = (this.Camera as ProjectionCamera).Position;
+            pos.Z = 1.8 * bounds.Height;
+            (this.Camera as ProjectionCamera).Position = pos;                   
         }
 
         private static Material CreateSurfaceMaterial(Color colour)
@@ -236,6 +250,7 @@ namespace Viewer.View
         private Color color;
         private Material material;
         private double thickness;
+        Rect bounds;
         private Point rotateOffset;
         private Point translateOffset;
 
@@ -247,6 +262,7 @@ namespace Viewer.View
             this.thickness = 1;
             this.rotateOffset = new Point(0, 0);
             this.translateOffset = new Point(0, 0);
+            this.bounds = new Rect();
 
             Push();
         }
@@ -290,6 +306,9 @@ namespace Viewer.View
             stack.Peek().Children[1] = new MatrixTransform3D(
                 stack.Peek().Children[1].Value *
                 new TranslateTransform3D(offset.X * 2, offset.Y * 2, offset.Z * 2).Value);
+
+            var currentPos = stack.Peek().Children[1].Transform(new Point3D(0, 0, 0));
+            this.bounds.Union(new Point(currentPos.X, currentPos.Y));
         }
 
         public void Move(double x, double y, double z)
