@@ -1,4 +1,4 @@
-﻿// These threes are taken from "L-sastems: from the Theory to Visual Models of Plants"
+﻿// These threes are taken from "L-Systems: from the Theory to Visual Models of Plants"
 // http://algorithmicbotany.org/papers/l-sys.csiro96.html
 
 using System;
@@ -44,12 +44,12 @@ namespace Viewer.TestData
                 F(a.Length),
                 StartBranch,
                     R(Alpha1),
-                    new LSystems.Turtle.RollLeft(Phi1),
+                    RollLeft(Phi1),
                     new A(a.Length * R1, a.Thickness * Math.Pow(Q, E)),
                 EndBranch,
                 StartBranch,
                     R(Alpha2),
-                    new LSystems.Turtle.RollLeft(Phi2),
+                    RollLeft(Phi2),
                     new A(a.Length * R2, a.Thickness * Math.Pow(1.0 - Q, E)),
                 EndBranch
                 );
