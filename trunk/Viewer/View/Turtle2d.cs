@@ -5,19 +5,20 @@ using System.Text;
 using System.Windows.Media;
 using System.Collections;
 using System.Windows;
+using System.Windows.Media.Media3D;
 
 namespace Viewer.View
 {
     public class Turtle2d : LSystems.Turtle.ITurtle
     {
         private DrawingContext dc;
-        private Stack<Pair<Point, double>> stack;
+        private Stack<Pair<Point, Matrix3D>> stack;
         private Pen pen;
 
         private Turtle2d(DrawingContext dc)
         {
             this.dc = dc;
-            this.stack = new Stack<Pair<Point, double>>();
+            this.stack = new Stack<Pair<Point, Matrix3D>>();
             this.pen = new Pen(Brushes.Black, 1);
 
             this.Push();
@@ -42,7 +43,7 @@ namespace Viewer.View
             }
         }
 
-        private double Angle
+        private Matrix3D Rotation
         {
             get { return stack.Peek().Second; }
             set { stack.Peek().Second = value; }
@@ -52,11 +53,11 @@ namespace Viewer.View
         {
             if (stack.Count > 0)
             {
-                stack.Push(new Pair<Point, double>(Position, Angle));
+                stack.Push(new Pair<Point, Matrix3D>(Position, Rotation));
             }
             else
             {
-                stack.Push(new Pair<Point, double>(new Point(0, 0), 0));
+                stack.Push(new Pair<Point, Matrix3D>(new Point(0, 0), Matrix3D.Identity));
             }
         }
 
@@ -67,11 +68,10 @@ namespace Viewer.View
 
         public void Forward(double distance, bool drawLine)
         {
-            Point newPosition = this.Position;
+            var offset = Rotation.Transform(new Point3D(distance, 0, 0));
 
-            newPosition.Offset(
-                distance * Math.Cos(this.Angle * Math.PI / 180.0),
-                distance * Math.Sin(this.Angle * Math.PI / 180.0));
+            var newPosition = this.Position;
+            newPosition.Offset(offset.X, offset.Y);
 
             if (drawLine)
             {
@@ -97,15 +97,20 @@ namespace Viewer.View
 
         public void Turn(double angle)
         {
-            this.Angle += angle;
+            this.Rotation = new RotateTransform3D(
+                new AxisAngleRotation3D(new Vector3D(0, 0, 1), angle)).Value * this.Rotation;
         }
 
         public void Pitch(double angle)
-        {            
+        {
+            this.Rotation = new RotateTransform3D(
+                new AxisAngleRotation3D(new Vector3D(0, 1, 0), angle)).Value * this.Rotation;
         }
 
         public void Roll(double angle)
-        {        
+        {
+            this.Rotation = new RotateTransform3D(
+                new AxisAngleRotation3D(new Vector3D(1, 0, 0), angle)).Value * this.Rotation;
         }
 
         public void SetThickness(double thickness)

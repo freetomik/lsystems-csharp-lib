@@ -304,8 +304,8 @@ namespace Viewer.View
             }
 
             stack.Peek().Children[1] = new MatrixTransform3D(
-                stack.Peek().Children[1].Value *
-                new TranslateTransform3D(offset.X * 2, offset.Y * 2, offset.Z * 2).Value);
+                new TranslateTransform3D(offset.X * 2, offset.Y * 2, offset.Z * 2).Value *
+                stack.Peek().Children[1].Value);
 
             var currentPos = stack.Peek().Children[1].Transform(new Point3D(0, 0, 0));
             this.bounds.Union(new Point(currentPos.X, currentPos.Y));
@@ -313,12 +313,15 @@ namespace Viewer.View
 
         public void Move(double x, double y, double z)
         {
-            //throw new NotImplementedException();
+            stack.Peek().Children[1] = new MatrixTransform3D(
+                new TranslateTransform3D(x, y, z).Value);
         }
 
         public void MoveRel(double x, double y, double z)
         {
-            //throw new NotImplementedException();
+            stack.Peek().Children[1] = new MatrixTransform3D(
+                new TranslateTransform3D(x, y, z).Value *
+                stack.Peek().Children[1].Value);
         }
 
         public void Turn(double angle)
