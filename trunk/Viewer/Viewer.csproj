@@ -98,6 +98,7 @@
     <EmbeddedResource Include="TestData\DragonCurve.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </EmbeddedResource>
+    <Compile Include="TestData\CutTest.cs" />
     <Compile Include="TestData\Leaf.cs" />
     <Compile Include="TestData\LplusCTree.cs">
     </Compile>

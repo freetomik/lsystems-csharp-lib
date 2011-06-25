@@ -127,15 +127,19 @@ namespace Viewer.ViewModel
 
         private void ExtractSystemDefinitions(Assembly assembly)
         {
-            this.SelectedType = null;
-            this.definitions.Clear();
+            var newList = new ObservableCollection<SystemDefinitionViewModel>();            
             foreach (var t in assembly.GetTypes())
             {
                 if (!t.IsAbstract && t.IsSubclassOf(typeof(LSystems.SystemDefinition)))
                 {
-                    this.definitions.Add(new SystemDefinitionViewModel(t));
+                    newList.Add(new SystemDefinitionViewModel(t));
                 }
             }
+
+            this.SelectedType = null;  
+            this.definitions.Clear();
+
+            newList.OrderBy(p => p.Name).ToList().ForEach(p => this.definitions.Add(p));            
 
             this.SelectedType = this.definitions.Count > 0 ? this.definitions[0] : null;
         }

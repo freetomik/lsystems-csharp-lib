@@ -22,6 +22,11 @@ namespace LSystems
             get { return new EndBranchModule(); }
         }
 
+        protected object Cut
+        {
+            get { return new CutModule(); }
+        }
+
         protected object Produce(params object[] modules)
         {
             return modules.ToList();

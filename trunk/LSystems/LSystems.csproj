@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackwardEnumerator.cs" />
+    <Compile Include="CutModule.cs" />
     <Compile Include="DecompositionAttribute.cs" />
     <Compile Include="DecompositionRule.cs" />
     <Compile Include="EmptyModule.cs" />

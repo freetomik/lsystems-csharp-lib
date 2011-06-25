@@ -7,6 +7,10 @@ using System.Diagnostics;
 
 namespace LSystems
 {
+    // TODO: may be create an ReplacementDone event in the system,
+    // so all replace actions can be memorized or displayed
+    // with animation???
+                        
     public class System
     {
         private List<ProductionRule> prodRules;
@@ -101,26 +105,7 @@ namespace LSystems
                     if (rule.TryRightToLeft(currentString, i, newString, systemDefinition, ref replacement, ref numReplacedModules))
                     {
                         i -= numReplacedModules - 1;
-
-                        // DEBUG!!!!!!!!!!!!!!!!!!!!!!
-                        // TODO: may be create an event in the system,
-                        // so all replace actions can be memorized or displayed
-                        // with animation???
-                        //for (int j = 0; j < currentString.Count; ++j)
-                        //{
-                        //    Debug.Write(" ");
-                        //    if (j == i - (numReplacedModules - 1)) Debug.Write("<<<");
-                        //    Debug.Write(currentString[j].GetType().Name.Split('.').Last());
-                        //    if (j == i) Debug.Write(">>>");
-                        //}
-                        //Debug.Write(", " + rule.Method.Name + ", right: ");                        
-                        //for (int j = 0; j < newString.Count; ++j)
-                        //{
-                        //    Debug.Write(" " + newString[j].GetType().Name.Split('.').Last());
-                        //}
-                        //Debug.WriteLine(string.Empty);
-                        // DEBUG!!!!!!!!!!!!!!!!!!!!!!
-
+                        
                         if (replacement is EmptyModule)
                         {
                             // Do nothing, Strict is removed from new string.
@@ -134,26 +119,7 @@ namespace LSystems
                         }
                     }
                 }               
-
-                // DEBUG!!!!!!!!!!!!!!!!!!!!!!
-                // TODO: may be create an event in the system,
-                // so all replace actions can be memorized or displayed
-                // with animation???
-                //for (int j = 0; j < currentString.Count; ++j)
-                //{
-                //    Debug.Write(" ");
-                //    if (j == i) Debug.Write("<<<");
-                //    Debug.Write(currentString[j].GetType().Name.Split('.').Last());
-                //    if (j == i) Debug.Write(">>>");
-                //}
-                //Debug.Write(", copy, right: ");
-                //for (int j = 0; j < newString.Count; ++j)
-                //{
-                //    Debug.Write(" " + newString[j].GetType().Name.Split('.').Last());                    
-                //}
-                //Debug.WriteLine(string.Empty);
-                // DEBUG!!!!!!!!!!!!!!!!!!!!!!
-
+    
                 // No replacement were found, 
                 // copy old module to the new string.
                 newString.Insert(0, this.currentString[i]);
@@ -173,16 +139,23 @@ namespace LSystems
 
         public void Decomposite(out bool isFinished)
         {
-            isFinished = true;
-
-            if (this.decRules.Count == 0)
-            {
-                return;
-            }
+            isFinished = true;           
 
             List<object> newString = new List<object>();
-            foreach (var m in this.currentString)
+            
+            ForwardEnumerator it = new ForwardEnumerator(this.currentString, 0);
+            while (it.MoveNext())
             {
+                object m = it.Current;
+                if (m is CutModule)
+                {
+                    // Apply cutting rule - goto end of current branch.
+                    it.FindEndOfBranch(typeof(StartBranchModule), typeof(EndBranchModule));
+
+                    // Current module should be end of branch.
+                    m = it.Current;
+                }
+
                 if (this.decRules.ContainsKey(m.GetType()))
                 {
                     foreach (var d in this.decRules[m.GetType()])
@@ -200,16 +173,9 @@ namespace LSystems
                             newString.InsertRange(newString.Count, newModules);
 
                             // Check if we are still not finished.
-                            if (isFinished)
+                            if (isFinished && CanBeDecomposed(newModules))
                             {
-                                foreach (var newModule in newModules)
-                                {
-                                    if (this.decRules.ContainsKey(newModule.GetType()))
-                                    {
-                                        isFinished = false;
-                                        break;
-                                    }
-                                }
+                                isFinished = false;
                             }
 
                             goto endOfDecomposition;
@@ -225,5 +191,17 @@ namespace LSystems
 
             this.String = newString;
         }
+
+        private bool CanBeDecomposed(List<object> newModules)
+        {
+            foreach (var newModule in newModules)
+            {
+                if (this.decRules.ContainsKey(newModule.GetType()))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }        
     }
 }

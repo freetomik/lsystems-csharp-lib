@@ -85,7 +85,8 @@
         
         <ListView 
             Grid.Column="2" Grid.Row="1" 
-            ItemsSource="{Binding Types}" SelectedItem="{Binding SelectedType, Mode=TwoWay}">
+            ItemsSource="{Binding Types}"             
+            SelectedItem="{Binding SelectedType, Mode=TwoWay}">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <TextBlock Text="{Binding Name}"/>
