@@ -26,6 +26,7 @@ namespace LSystems.Turtle
             Register<f>(p => Turtle.Forward(p.Value, false));
             Register<L>(p => Turtle.Turn(p.Value));
             Register<R>(p => Turtle.Turn(-p.Value));
+            Register<TurnAround>(p => Turtle.Turn(180));
             Register<PitchUp>(p => Turtle.Pitch(p.Value));
             Register<PitchDown>(p => Turtle.Pitch(-p.Value));
             Register<RollLeft>(p => Turtle.Roll(p.Value));

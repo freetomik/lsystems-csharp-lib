@@ -95,10 +95,13 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="TestData\Bush.cs" />
     <Compile Include="TestData\DragonCurve.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
     <Compile Include="TestData\CutTest.cs" />
+    <Compile Include="TestData\Flower.cs" />
+    <Compile Include="TestData\Hilbert3d.cs" />
     <Compile Include="TestData\Leaf.cs" />
     <Compile Include="TestData\LplusCTree.cs">
     </Compile>
@@ -106,6 +109,7 @@
     <Compile Include="TestData\Tree3d.cs" />
     <Compile Include="ViewModel\IOService.cs" />
     <Compile Include="ViewModel\RelayCommand.cs" />
+    <Compile Include="View\Matrices.cs" />
     <Compile Include="View\Turtle2d.cs" />
     <Compile Include="View\TurtleDisplay.cs" />
     <Compile Include="View\TurtleDisplay3d.cs" />

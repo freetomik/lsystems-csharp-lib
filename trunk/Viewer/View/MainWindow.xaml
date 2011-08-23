@@ -27,7 +27,7 @@
                 <Grid>
                     <TabControl>                        
                         <TabItem Header="2d">
-                            <Grid> <!--Background="LightGoldenrodYellow"-->
+                            <Grid Background="LightGoldenrodYellow">
                                 <Viewbox StretchDirection="DownOnly">                                
                                     <view:TurtleDisplay System="{Binding SelectedItem.System, ElementName=StepsList}"/>
                                 </Viewbox>
@@ -51,9 +51,10 @@
                                     <ModelVisual3D>
                                         <ModelVisual3D.Content>
                                             <Model3DGroup x:Name="group3d">
-                                                <DirectionalLight 
+                                                <DirectionalLight                                                     
                                                     Direction="0, 0, -1"                                               
                                                     Color="White"/>
+                                                <AmbientLight Color="#444444"/>
                                             </Model3DGroup>
                                         </ModelVisual3D.Content>
                                     </ModelVisual3D>

@@ -49,26 +49,35 @@ namespace LSystems.Turtle
 
     public class PitchUp : Module<double>
     {
+        public const char Letter = '^';
         public PitchUp(double angle) : base(angle) { }
         public PitchUp() { }
     }
 
     public class PitchDown : Module<double>
     {
+        public const char Letter = '&';
         public PitchDown(double angle) : base(angle) { }
         public PitchDown() { }
     }
 
     public class RollLeft : Module<double>
     {
+        public const char Letter = '\\';
         public RollLeft(double angle) : base(angle) { }
         public RollLeft() { }
     }
 
     public class RollRight : Module<double>
     {
+        public const char Letter = '/';
         public RollRight(double angle) : base(angle) { }
         public RollRight() { }
+    }
+
+    public class TurnAround
+    {
+        public const char Letter = '|';
     }
 
     public struct Point

@@ -358,23 +358,20 @@ namespace Viewer.View
 
         public void Turn(double angle)
         {
-            stack.Peek().Children[0] = new MatrixTransform3D(
-                new RotateTransform3D(
-                    new AxisAngleRotation3D(new Vector3D(0, 0, 1), angle)).Value * stack.Peek().Children[0].Value);
+            stack.Peek().Children[0] = 
+                new MatrixTransform3D(Matricies.TurnMartix(angle) * stack.Peek().Children[0].Value);
         }
 
         public void Pitch(double angle)
         {
-            stack.Peek().Children[0] = new MatrixTransform3D(
-                new RotateTransform3D(
-                    new AxisAngleRotation3D(new Vector3D(0, 1, 0), angle)).Value * stack.Peek().Children[0].Value);
+            stack.Peek().Children[0] = 
+                new MatrixTransform3D(Matricies.PitchMartix(angle) * stack.Peek().Children[0].Value);
         }
 
         public void Roll(double angle)
         {
-            stack.Peek().Children[0] = new MatrixTransform3D(
-                new RotateTransform3D(
-                    new AxisAngleRotation3D(new Vector3D(1, 0, 0), angle)).Value * stack.Peek().Children[0].Value);
+            stack.Peek().Children[0] = 
+                new MatrixTransform3D(Matricies.RollMartix(angle) * stack.Peek().Children[0].Value);
         }
 
         public void SetThickness(double thickness)
