@@ -14,6 +14,8 @@ namespace Viewer.View
         private DrawingContext dc;
         private Stack<Pair<Point, Matrix3D>> stack;
         private Pen pen;
+        private List<Point> surfacePoints = new List<Point>();
+        private bool isSurfaceMode;
 
         private Turtle2d(DrawingContext dc)
         {
@@ -24,16 +26,16 @@ namespace Viewer.View
             this.Push();
         }
 
-        public Rect Bounds 
-        { 
-            get; 
-            protected set; 
+        public Rect Bounds
+        {
+            get;
+            protected set;
         }
 
         private Point Position
         {
             get { return stack.Peek().First; }
-            set 
+            set
             {
                 stack.Peek().First = value;
 
@@ -47,7 +49,7 @@ namespace Viewer.View
         {
             get { return stack.Peek().Second; }
             set { stack.Peek().Second = value; }
-        }        
+        }
 
         public void Push()
         {
@@ -76,6 +78,11 @@ namespace Viewer.View
             if (drawLine)
             {
                 this.dc.DrawLine(this.pen, this.Position, newPosition);
+            }
+
+            if (this.isSurfaceMode)
+            {
+                this.surfacePoints.Add(newPosition);
             }
 
             this.Position = newPosition;
@@ -137,7 +144,38 @@ namespace Viewer.View
                 || this.pen.Thickness != thickness)
             {
                 this.pen = new Pen(new SolidColorBrush(color), thickness);
-            }            
+            }
+        }
+
+        public void SurfaceBegin()
+        {
+            this.isSurfaceMode = true;
+            this.surfacePoints.Add(this.Position);
+        }
+
+        public void SurfaceEnd()
+        {
+            if (this.surfacePoints.Count > 0)
+            {            
+                PathFigure figure = new PathFigure();
+                figure.StartPoint = this.surfacePoints[0];
+
+                PathSegmentCollection segments = new PathSegmentCollection();
+                for (int i = 1; i < this.surfacePoints.Count; i++)
+                    segments.Add(new LineSegment(this.surfacePoints[i], true));
+
+                figure.Segments = segments;
+                
+                PathGeometry geometry = new PathGeometry();
+                geometry.Figures.Add(figure);
+
+                this.dc.DrawGeometry(this.pen.Brush, this.pen, geometry);
+
+                this.surfacePoints.Clear();
+            }
+
+            this.isSurfaceMode = false;
+            
         }
 
         private class Pair<T, U>
@@ -162,10 +200,10 @@ namespace Viewer.View
 
             LSystems.System lSystem = (LSystems.System)system;
 
-            if (lSystem.Definition is LSystems.Turtle.SystemDefintion)
+            if (lSystem.Definition is LSystems.Turtle.SystemDefinition)
             {
-                ((LSystems.Turtle.SystemDefintion)lSystem.Definition).Turtle = turtle;
-            }            
+                ((LSystems.Turtle.SystemDefinition)lSystem.Definition).Turtle = turtle;
+            }
 
             var interpreter = new LSystems.Turtle.Interpreter();
 
@@ -173,9 +211,9 @@ namespace Viewer.View
 
             interpreter.Interpret(turtle, lSystem.String as IEnumerable);
 
-            if (lSystem.Definition is LSystems.Turtle.SystemDefintion)
+            if (lSystem.Definition is LSystems.Turtle.SystemDefinition)
             {
-                ((LSystems.Turtle.SystemDefintion)lSystem.Definition).Turtle = null;
+                ((LSystems.Turtle.SystemDefinition)lSystem.Definition).Turtle = null;
             }
 
             boundingRect = turtle.Bounds;

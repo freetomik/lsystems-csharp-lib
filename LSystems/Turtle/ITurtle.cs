@@ -13,6 +13,9 @@ namespace LSystems.Turtle
         void Pitch(double angle);
         void Roll(double angle);
 
+        void SurfaceBegin();
+        void SurfaceEnd();
+
         void SetThickness(double thickness);
         void SetColor(double r, double g, double b);
         void SetThicknessAndColor(double thickness, double r, double g, double b);

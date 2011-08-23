@@ -79,7 +79,12 @@ namespace Viewer.ViewModel
         public ICommand OpenFileCommand
         {
             get { return new RelayCommand(p => LoadFile()); }
-        }        
+        }
+
+        public ICommand OpenSelfCommand
+        {
+            get { return new RelayCommand(p => LoadSelf()); }
+        } 
 
         public MainViewModel(IOService ioService)
         {

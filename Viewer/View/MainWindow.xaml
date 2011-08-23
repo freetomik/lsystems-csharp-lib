@@ -4,95 +4,96 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:view="clr-namespace:Viewer.View"
     Title="LSystems.Viewer" Height="600" Width="800">
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="4*"/>
-            <ColumnDefinition Width="5"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        
-        <GridSplitter Grid.Column="1" Grid.Row="1" ResizeDirection="Columns" HorizontalAlignment="Stretch"/>
-        
-        <DockPanel Grid.ColumnSpan="3">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Button Padding="10 3 10 3"  Content="Unload" DockPanel.Dock="Right" Command="{Binding OpenSelfCommand}"/>
             <Button Padding="10 3 10 3"  Content="..." DockPanel.Dock="Right" Command="{Binding OpenFileCommand}"/>
             <TextBox IsReadOnly="true" Text="{Binding FileName, Mode=OneWay}"/>
         </DockPanel>
         
-        <Border Grid.Row="1">
-            <Grid>
-                <TabControl>
-                    <TabItem Header="3d">
-                        <Grid Background="LightGoldenrodYellow">
-                            <view:TurtleDisplay3d                                              
-                                System="{Binding SelectedType.System}"
-                                ClipToBounds="True" 
-                                HorizontalAlignment="Stretch" 
-                                VerticalAlignment="Stretch">
+        <Grid>                
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="4*"/>                        
+            </Grid.ColumnDefinitions>
 
-                                <Viewport3D.Camera>
-                                    <PerspectiveCamera
-                                        LookDirection="0,0,-20"
-                                        UpDirection="0,1,0"
-                                        Position="0,0,500"/>
-                                    
-                                    <!--<OrthographicCamera
-                                        LookDirection="0, 0, -20"
-                                        UpDirection="0,1,0"
-                                        Position="0,0,500"
-                                        Width="1000"/>-->
-                                        
-                                        
-                                </Viewport3D.Camera>
-                                
-                                <ModelVisual3D>
-                                    <ModelVisual3D.Content>
-                                        <Model3DGroup x:Name="group3d">
-                                            <DirectionalLight 
-                                                Direction="0, 0, -1"                                               
-                                                Color="White"
-                                                />
-                                            <!--<SpotLight 
-                                                Position="0,0,100" 
-                                                x:Name="mySpotLight" 
-                                                Color="White"  
-                                                InnerConeAngle="100" 
-                                                OuterConeAngle="100" 
-                                                Range="100"/>-->
-                                            
-                                            
-                                        </Model3DGroup>
-                                    </ModelVisual3D.Content>
-                                </ModelVisual3D>
-                            </view:TurtleDisplay3d>
-                        </Grid>
-                    </TabItem>
-                    <TabItem Header="2d">
-                        <Grid Background="LightGoldenrodYellow">
-                            <Viewbox StretchDirection="DownOnly">
-                                <view:TurtleDisplay System="{Binding SelectedType.System}"/>
-                            </Viewbox>
-                        </Grid>
-                    </TabItem>
-                </TabControl>
-                <TextBlock Text="{Binding CompileError}" VerticalAlignment="Bottom"/>
-            </Grid>            
-        </Border>
-        
-        
-        <ListView 
-            Grid.Column="2" Grid.Row="1" 
-            ItemsSource="{Binding Types}"             
-            SelectedItem="{Binding SelectedType, Mode=TwoWay}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Name}"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>                
-        </ListView>
-        
-    </Grid>
+            <GridSplitter Grid.Column="1" Grid.Row="1" ResizeDirection="Columns" HorizontalAlignment="Stretch"/>
+            <GridSplitter Grid.Column="3" Grid.Row="1" ResizeDirection="Columns" HorizontalAlignment="Stretch"/>
+            
+            <Border Grid.Column="4">
+                <Grid>
+                    <TabControl>                        
+                        <TabItem Header="2d">
+                            <Grid> <!--Background="LightGoldenrodYellow"-->
+                                <Viewbox StretchDirection="DownOnly">                                
+                                    <view:TurtleDisplay System="{Binding SelectedItem.System, ElementName=StepsList}"/>
+                                </Viewbox>
+                            </Grid>
+                        </TabItem>
+                        <TabItem Header="3d">
+                            <Grid Background="LightGoldenrodYellow">                         
+                                <view:TurtleDisplay3d                                              
+                                    System="{Binding SelectedItem.System, ElementName=StepsList}"
+                                    ClipToBounds="True" 
+                                    HorizontalAlignment="Stretch" 
+                                    VerticalAlignment="Stretch">
+
+                                    <Viewport3D.Camera>
+                                        <PerspectiveCamera
+                                            LookDirection="0,0,-20"
+                                            UpDirection="0,1,0"
+                                            Position="0,0,500"/>
+                                    </Viewport3D.Camera>
+
+                                    <ModelVisual3D>
+                                        <ModelVisual3D.Content>
+                                            <Model3DGroup x:Name="group3d">
+                                                <DirectionalLight 
+                                                    Direction="0, 0, -1"                                               
+                                                    Color="White"/>
+                                            </Model3DGroup>
+                                        </ModelVisual3D.Content>
+                                    </ModelVisual3D>
+                                </view:TurtleDisplay3d>
+                            </Grid>
+                        </TabItem>
+                    </TabControl>
+                    <TextBlock Text="{Binding CompileError}" VerticalAlignment="Bottom"/>
+                </Grid>                
+            </Border>
+            
+            <GroupBox Header="Classes">
+                <ListBox                                        
+                    ItemsSource="{Binding Types}"             
+                    SelectedItem="{Binding SelectedType, Mode=TwoWay}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Name}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>
+            
+            <GroupBox Header="Build" Grid.Column="2">
+                <ListBox 
+                    x:Name="StepsList"
+                    ItemsSource="{Binding SelectedType.Steps}"
+                    IsSynchronizedWithCurrentItem="True">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding Name}"/>
+                                <TextBlock Text=", "/>
+                                <TextBlock Text="{Binding System.String.Count}"/>
+                                <TextBlock Text=" items"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </GroupBox>            
+        </Grid>
+    </DockPanel>
 </Window>

@@ -8,45 +8,40 @@ using System.Text;
 
 namespace Viewer.TestData
 {
-    public class DragonCurve : LSystems.Turtle.SystemDefintion, LSystems.IRewriteRules
+    public class DragonCurve : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
         public class l { };
         public class r { };
 
-        public DragonCurve()
+        private LSystems.Turtle.StringParser parser = new LSystems.Turtle.StringParser()
         {
-            this.Angle = 90;
-            this.Distance = 10;
-        }
-
-        public double Angle { get; set; }
-        public double Distance { get; set; }
+            CharToObject = c =>
+            {
+                switch (c)
+                {
+                    case 'l': return new l();
+                    case 'r': return new r();
+                    default: return null;
+                }
+            }
+        };
+        
 
         [LSystems.Production]
         public object lRule(l p)
         {
-            return Produce(
-                new l(),
-                R(this.Angle),
-                new r(),
-                F(this.Distance),
-                R(this.Angle));
+            return parser.Produce("l-rF-");
         }
 
         [LSystems.Production]
         public object rRule(r p)
         {
-            return Produce(
-                L(this.Angle),
-                F(this.Distance),
-                new l(),
-                L(this.Angle),
-                new r());
+            return parser.Produce("+Fl+r");
         }
 
         public object Axiom
         {
-            get { return Produce(F(), new l()); }
+            get { return parser.Produce("Fl"); }
         }
 
         public int Depth

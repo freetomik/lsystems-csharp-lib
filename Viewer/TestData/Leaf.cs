@@ -8,7 +8,7 @@ namespace Viewer.TestData
     public class i { }
     public class a { }
 
-    public class Leaf : LSystems.Turtle.SystemDefintion, LSystems.IRewriteRules
+    public class Leaf : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
         public double Angle { get; set; }
         public double Distance { get; set; }

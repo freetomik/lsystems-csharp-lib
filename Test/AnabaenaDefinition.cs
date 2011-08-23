@@ -90,22 +90,22 @@ namespace Test
         public static void DoTest()
         {
             // Create L-System.
-            var definition = new AnabaenaDefinition();
-            LSystems.System system = LSystems.SystemBuilder.BuildSystem(definition);
-            system.String = new object[] 
-            {
-                new W(0), new M(0), new W(AnabaenaDefinition.TimeStep)
-            };
+            //var definition = new AnabaenaDefinition();
+            //LSystems.System system = LSystems.SystemBuilder.BuildSystem(definition);
+            //system.String = new object[] 
+            //{
+            //    new W(0), new M(0), new W(AnabaenaDefinition.TimeStep)
+            //};
 
-            // Rewrite and printout the result.
-            Print(system.String as IEnumerable);
+            //// Rewrite and printout the result.
+            //Print(system.String as IEnumerable);
 
-            for (int i = 0; i < 7; ++i)
-            {
-                system.RewriteLeftToRight();
-                //system.Decomposite();
-                Print(system.String as IEnumerable);
-            }
+            //for (int i = 0; i < 7; ++i)
+            //{
+            //    system.RewriteLeftToRight();
+            //    //system.Decomposite();
+            //    Print(system.String as IEnumerable);
+            //}
         }
 
         private static void Print(IEnumerable modules)

@@ -145,20 +145,20 @@ namespace Viewer.View
 
             if (lSystem != null)
             {
-                if (lSystem.Definition is LSystems.Turtle.SystemDefintion)
+                if (lSystem.Definition is LSystems.Turtle.SystemDefinition)
                 {
-                    ((LSystems.Turtle.SystemDefintion)lSystem.Definition).Turtle = this;
+                    ((LSystems.Turtle.SystemDefinition)lSystem.Definition).Turtle = this;
                 }
 
                 var interpreter = new LSystems.Turtle.Interpreter();
 
                 interpreter.RegisterExternalFunctions(lSystem.Definition);
 
-                interpreter.Interpret(this, lSystem.String as IEnumerable);
+                interpreter.Interpret(this, lSystem.String as IEnumerable);        
 
-                if (lSystem.Definition is LSystems.Turtle.SystemDefintion)
+                if (lSystem.Definition is LSystems.Turtle.SystemDefinition)
                 {
-                    ((LSystems.Turtle.SystemDefintion)lSystem.Definition).Turtle = null;
+                    ((LSystems.Turtle.SystemDefinition)lSystem.Definition).Turtle = null;
                 }
             }
 
@@ -231,6 +231,31 @@ namespace Viewer.View
             return model;
         }
 
+        private ModelVisual3D CreateSurface()
+        {
+            var mesh = new MeshGeometry3D();
+
+            for (int i = 2; i < this.surfacePoints.Count; ++i)
+            {
+                CreateTriangleModel(mesh,
+                    this.surfacePoints[0],
+                    this.surfacePoints[i],
+                    this.surfacePoints[i - 1]);
+
+                CreateTriangleModel(mesh,
+                    this.surfacePoints[0],
+                    this.surfacePoints[i - 1],
+                    this.surfacePoints[i]);
+            }
+
+            var model = new ModelVisual3D();
+
+            model.Content = new GeometryModel3D(mesh, this.material);
+
+            return model;
+
+        }
+
         private static void CreateTriangleModel(MeshGeometry3D mesh, Point3D p0, Point3D p1, Point3D p2)
         {
             int index = mesh.TriangleIndices.Count;
@@ -250,9 +275,11 @@ namespace Viewer.View
         private Color color;
         private Material material;
         private double thickness;
-        Rect bounds;
+        private Rect bounds;
         private Point rotateOffset;
         private Point translateOffset;
+        private List<Point3D> surfacePoints = new List<Point3D>();
+        private bool isSurfaceMode;
 
         private void Reset()
         {
@@ -309,6 +336,11 @@ namespace Viewer.View
 
             var currentPos = stack.Peek().Children[1].Transform(new Point3D(0, 0, 0));
             this.bounds.Union(new Point(currentPos.X, currentPos.Y));
+
+            if (this.isSurfaceMode)
+            {
+                this.surfacePoints.Add(currentPos);
+            }
         }
 
         public void Move(double x, double y, double z)
@@ -368,6 +400,23 @@ namespace Viewer.View
         {
             SetThickness(thickness);
             SetColor(r, g, b);
+        }
+
+        public void SurfaceBegin()
+        {
+            this.isSurfaceMode = true;
+            this.surfacePoints.Add(this.stack.Peek().Children[1].Transform(new Point3D(0, 0, 0)));
+        }
+
+        public void SurfaceEnd()
+        {
+            if (this.surfacePoints.Count > 0)
+            {
+                (this.Children.Last() as ModelVisual3D).Children.Add(CreateSurface());
+                this.surfacePoints.Clear();
+            }
+
+            this.isSurfaceMode = false;
         }
 
         #endregion
