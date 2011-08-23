@@ -104,20 +104,17 @@ namespace Viewer.View
 
         public void Turn(double angle)
         {
-            this.Rotation = new RotateTransform3D(
-                new AxisAngleRotation3D(new Vector3D(0, 0, 1), angle)).Value * this.Rotation;
+            this.Rotation = Matricies.TurnMartix(angle) * this.Rotation;
         }
 
         public void Pitch(double angle)
         {
-            this.Rotation = new RotateTransform3D(
-                new AxisAngleRotation3D(new Vector3D(0, 1, 0), angle)).Value * this.Rotation;
+            this.Rotation = Matricies.PitchMartix(angle) * this.Rotation;
         }
 
         public void Roll(double angle)
         {
-            this.Rotation = new RotateTransform3D(
-                new AxisAngleRotation3D(new Vector3D(1, 0, 0), angle)).Value * this.Rotation;
+            this.Rotation = Matricies.RollMartix(angle) * this.Rotation;
         }
 
         public void SetThickness(double thickness)

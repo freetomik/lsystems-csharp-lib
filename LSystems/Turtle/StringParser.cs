@@ -46,10 +46,15 @@ namespace LSystems.Turtle
                 case '[': return new StartBranchModule();
                 case ']': return new EndBranchModule();
                 case '%': return new CutModule();
-                case F.Letter: return new F(this.distance);
-                case f.Letter: return new f(this.distance);
-                case L.Letter: return new L(this.angle);
-                case R.Letter: return new R(this.angle);
+                case F.Letter: return new F(this.Distance);
+                case f.Letter: return new f(this.Distance);
+                case L.Letter: return new L(this.Angle);
+                case R.Letter: return new R(this.Angle);
+                case TurnAround.Letter: return new TurnAround();
+                case PitchUp.Letter: return new PitchUp(this.Angle);
+                case PitchDown.Letter: return new PitchDown(this.Angle);
+                case RollLeft.Letter: return new RollLeft(this.Angle);
+                case RollRight.Letter: return new RollRight(this.Angle);
                 case SurfaceBegin.Letter: return new SurfaceBegin();
                 case SurfaceEnd.Letter: return new SurfaceEnd();                
             }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Viewer.TestData
 {
-    public class ASurfaceTest : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
+    public class SurfaceTest : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
         private LSystems.Turtle.StringParser parser = new LSystems.Turtle.StringParser();       
 
