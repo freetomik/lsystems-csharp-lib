@@ -2,13 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Windows.Data;
 
 namespace Viewer.ViewModel
 {
+    public class Step
+    {
+        public LSystems.System System { get; set; }
+        public string Name { get; set; }
+    }
+
     public class SystemDefinitionViewModel : BaseViewModel
     {
         private Type definitionType;
         private LSystems.System system;
+        private ObservableCollection<Step> steps = new ObservableCollection<Step>();
         private LSystems.SystemDefinition definition;
         
         public SystemDefinitionViewModel(Type type)
@@ -22,13 +32,13 @@ namespace Viewer.ViewModel
             {
                 return definitionType.Name;
             }
-        }
+        }        
 
-        public object System
+        public object Steps
         {
             get
             {
-                return system;
+                return steps;
             }
         }
 
@@ -77,10 +87,18 @@ namespace Viewer.ViewModel
                         }
                         
                         system.Decomposite();
-                    }
-                }
-            }            
 
+                        this.steps.Insert(0, new Step() { System = system, Name =  string.Format("Step {0}", i + 1)});
+
+                        system = system.Clone();
+                    }
+                }            
+            }
+
+            if (this.steps.Count > 0)
+            {
+                CollectionViewSource.GetDefaultView(this.steps).MoveCurrentTo(this.steps[0]);
+            }            
             NotifyPropertyChanged("System");
         }
     }

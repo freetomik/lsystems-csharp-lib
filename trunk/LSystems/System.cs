@@ -34,6 +34,11 @@ namespace LSystems
             }            
         }
 
+        public System Clone()
+        {
+            return (System)this.MemberwiseClone();
+        }
+
         public object Definition
         {
             get { return systemDefinition; }

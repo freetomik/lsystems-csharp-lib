@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Viewer.TestData
 {
-    public class CutTest : LSystems.Turtle.SystemDefintion, LSystems.IRewriteRules
+    public class CutTest : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
         public class A { }
         public class B { }

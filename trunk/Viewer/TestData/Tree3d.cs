@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Viewer.TestData
 {
-    public abstract class Tree3d : LSystems.Turtle.SystemDefintion, LSystems.IRewriteRules
+    public abstract class Tree3d : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
         public class A
         {

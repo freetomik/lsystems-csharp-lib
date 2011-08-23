@@ -38,7 +38,7 @@ namespace SystemDefinitionsTest
         }
     }
 
-    public class LplusCTree : LSystems.Turtle.SystemDefintion, LSystems.IRewriteRules
+    public class LplusCTree : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
         public const double Delay = 1;
         public const double BranchingAngle = 45;

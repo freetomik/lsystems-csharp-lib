@@ -34,6 +34,8 @@ namespace LSystems.Turtle
             Register<MoveToRel>(p => Turtle.MoveRel(p.Value.X, p.Value.Y, 0));
             Register<LineThickness>(p => Turtle.SetThickness(p.Value));
             Register<LineColor>(p => Turtle.SetColor(p.Value.R, p.Value.G, p.Value.B));
+            Register<SurfaceBegin>(p => Turtle.SurfaceBegin());
+            Register<SurfaceEnd>(p => Turtle.SurfaceEnd());
         }
         
         public void RegisterExternalFunctions(object interpreter)

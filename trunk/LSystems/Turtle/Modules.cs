@@ -21,24 +21,28 @@ namespace LSystems.Turtle
 
     public class F : Module<double>
     {
+        public const char Letter = 'F';
         public F(double distance) : base(distance) { }
         public F() { }    
     }
 
     public class f : Module<double>
     {
+        public const char Letter = 'f';
         public f(double distance) : base(distance) { }
         public f() { }
     }
 
     public class L : Module<double>
     {
+        public const char Letter = '+';
         public L(double angle) : base(angle) { }
         public L() { }        
     }
 
     public class R : Module<double>
     {
+        public const char Letter = '-';
         public R(double angle) : base(angle) { }
         public R() { }        
     }
@@ -105,5 +109,15 @@ namespace LSystems.Turtle
     {
         public LineThickness(double thickness) : base(thickness) { }
         public LineThickness() { }
+    }
+
+    public class SurfaceBegin
+    {
+        public const char Letter = '{';
+    }
+
+    public class SurfaceEnd
+    {
+        public const char Letter = '}';
     }
 }

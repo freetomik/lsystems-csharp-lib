@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace LSystems.Turtle
 {
-    public class SystemDefintion : LSystems.SystemDefinition
+    public class SystemDefinition : LSystems.SystemDefinition
     {
         protected object F() { return new F(); }
         protected object F(double distance) { return new F(distance); }
@@ -35,6 +35,6 @@ namespace LSystems.Turtle
         protected object MoveTo(double x, double y) { return new MoveTo(x, y); }
         protected object MoveToRel(double x, double y) { return new MoveToRel(x, y); }
 
-        public ITurtle Turtle { get; set; }
+        public ITurtle Turtle { get; set; }        
     }
 }

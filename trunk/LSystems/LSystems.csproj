@@ -66,6 +66,7 @@
     <Compile Include="Turtle\InterprtetAttribute.cs" />
     <Compile Include="Turtle\ITurtle.cs" />
     <Compile Include="Turtle\Modules.cs" />
+    <Compile Include="Turtle\StringParser.cs" />
     <Compile Include="Turtle\SystemDefinition.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
