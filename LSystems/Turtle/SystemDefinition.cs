@@ -11,11 +11,11 @@ namespace LSystems.Turtle
         protected object f() { return new f(); }
         protected object f(double distance) { return new f(distance); }
 
-        protected object R() { return new R(); }
-        protected object R(double angle) { return new R(angle); }
+        protected object TurnRight() { return new TurnRight(); }
+        protected object TurnRight(double angle) { return new TurnRight(angle); }
 
-        protected object L() { return new L(); }
-        protected object L(double angle) { return new L(angle); }
+        protected object TurnLeft() { return new TurnLeft(); }
+        protected object TurnLeft(double angle) { return new TurnLeft(angle); }
 
         protected object PitchUp() { return new PitchUp(); }
         protected object PitchUp(double angle) { return new PitchUp(angle); }

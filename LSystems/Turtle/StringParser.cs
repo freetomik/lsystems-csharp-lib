@@ -48,8 +48,8 @@ namespace LSystems.Turtle
                 case '%': return new CutModule();
                 case F.Letter: return new F(this.Distance);
                 case f.Letter: return new f(this.Distance);
-                case L.Letter: return new L(this.Angle);
-                case R.Letter: return new R(this.Angle);
+                case TurnLeft.Letter: return new TurnLeft(this.Angle);
+                case TurnRight.Letter: return new TurnRight(this.Angle);
                 case TurnAround.Letter: return new TurnAround();
                 case PitchUp.Letter: return new PitchUp(this.Angle);
                 case PitchDown.Letter: return new PitchDown(this.Angle);

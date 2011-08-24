@@ -33,18 +33,18 @@ namespace LSystems.Turtle
         public f() { }
     }
 
-    public class L : Module<double>
+    public class TurnLeft : Module<double>
     {
         public const char Letter = '+';
-        public L(double angle) : base(angle) { }
-        public L() { }        
+        public TurnLeft(double angle) : base(angle) { }
+        public TurnLeft() { }        
     }
 
-    public class R : Module<double>
+    public class TurnRight : Module<double>
     {
         public const char Letter = '-';
-        public R(double angle) : base(angle) { }
-        public R() { }        
+        public TurnRight(double angle) : base(angle) { }
+        public TurnRight() { }        
     }
 
     public class PitchUp : Module<double>

@@ -43,12 +43,12 @@ namespace Viewer.TestData
                 LineThickness(a.Thickness),
                 F(a.Length),
                 StartBranch,
-                    R(Alpha1),
+                    TurnRight(Alpha1),
                     RollLeft(Phi1),
                     new A(a.Length * R1, a.Thickness * Math.Pow(Q, E)),
                 EndBranch,
                 StartBranch,
-                    R(Alpha2),
+                    TurnRight(Alpha2),
                     RollLeft(Phi2),
                     new A(a.Length * R2, a.Thickness * Math.Pow(1.0 - Q, E)),
                 EndBranch
@@ -59,7 +59,7 @@ namespace Viewer.TestData
 
         public object Axiom
         {
-            get { return Produce(LineColor(0.7, 0.5, 0), L(90), new A(100, W0)); }
+            get { return Produce(LineColor(0.7, 0.5, 0), TurnLeft(90), new A(100, W0)); }
         }
 
         public int Depth

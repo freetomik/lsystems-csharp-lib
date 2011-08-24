@@ -9,7 +9,8 @@ namespace Viewer.TestData
     {
         public class A { }
         public class S { }
-        public class L { }        
+        public class L { }
+        public class ThicknessDown { }
         
         private LSystems.Turtle.StringParser parser = 
             new LSystems.Turtle.StringParser()
@@ -22,8 +23,8 @@ namespace Viewer.TestData
                     case 'A': return new A();
                     case 'S': return new S();
                     case 'L': return new L();
-                    case 'g': return new LSystems.Turtle.LineColor(0.2, 0.9, 0.1);
-                    case 'b': return new LSystems.Turtle.LineColor(0.2, 0.2, 0.1);
+                    case '!': return new ThicknessDown();
+                    case 'g': return new LSystems.Turtle.LineColor(0.2, 0.9, 0.1);                    
                     default: return null;
                 }
             }
@@ -32,7 +33,7 @@ namespace Viewer.TestData
         [LSystems.Production]
         public object Produce(A a)
         {
-            return parser.Produce("b[&FLA]/////b[&FLA]///////b[&FLA]");
+            return parser.Produce("[&FL!A]/////[&FL!A]///////[&FL!A]");
         }
 
         [LSystems.Production]
@@ -53,13 +54,23 @@ namespace Viewer.TestData
             return parser.Produce("[g^^{-f+f+f-|-f+f+f}]");
         }
 
+        [LSystems.Turtle.Interpret]
+        public void ReduceThickness(ThicknessDown td)
+        {
+            Turtle.SetThickness(0.5 * Turtle.GetThickness());
+        }
+
         #region IRewriteRules Member
 
         public object Axiom
         {
             get
             {
-                return Produce(new LSystems.Turtle.L(90), new A());
+                return Produce(
+                    new LSystems.Turtle.LineThickness(30), 
+                    new LSystems.Turtle.LineColor(0.2, 0.2, 0.1), 
+                    new LSystems.Turtle.TurnLeft(90), 
+                    new A());
             }
         }
 

@@ -12,16 +12,63 @@ namespace Viewer.View
     public class Turtle2d : LSystems.Turtle.ITurtle
     {
         private DrawingContext dc;
-        private Stack<Pair<Point, Matrix3D>> stack;
-        private Pen pen;
-        private List<Point> surfacePoints = new List<Point>();
-        private bool isSurfaceMode;
+        private Stack<State> stack;        
+        private List<Point> surfacePoints;        
+
+        private class State
+        {
+            private Pen pen;
+
+            public Matrix3D Rotation { get; set; }
+            public Point Position { get; set; }
+            public Pen Pen { get { return this.pen; } }
+            
+            public double Thickness 
+            {
+                get { return this.pen.Thickness; }
+                set
+                {
+                    if (this.Thickness != value)
+                    {
+                        this.pen = new Pen(new SolidColorBrush(this.Color), value);
+                    }
+                }
+            }
+            
+            public Color Color
+            {    
+                get
+                {
+                    return (this.pen.Brush as SolidColorBrush).Color;
+                }
+                set
+                {   
+                    if (this.Color != value)
+                    {
+                        this.pen = new Pen(new SolidColorBrush(value), this.Thickness);
+                    }                    
+                }
+            }
+            
+            public State()
+            {
+                this.Position = new Point(0, 0);
+                this.Rotation = Matrix3D.Identity;
+                this.pen = new Pen(new SolidColorBrush(Colors.Black), 1);
+            }
+
+            public State(State other)
+            {
+                this.Position = new Point(other.Position.X, other.Position.Y);
+                this.Rotation = other.Rotation * Matrix3D.Identity;
+                this.pen = other.pen.Clone();
+            }
+        }
 
         private Turtle2d(DrawingContext dc)
         {
             this.dc = dc;
-            this.stack = new Stack<Pair<Point, Matrix3D>>();
-            this.pen = new Pen(Brushes.Black, 1);
+            this.stack = new Stack<State>();            
 
             this.Push();
         }
@@ -32,12 +79,17 @@ namespace Viewer.View
             protected set;
         }
 
+        private Pen Pen
+        {
+            get { return stack.Peek().Pen; }
+        }
+
         private Point Position
         {
-            get { return stack.Peek().First; }
+            get { return stack.Peek().Position; }
             set
             {
-                stack.Peek().First = value;
+                stack.Peek().Position = value;
 
                 Rect b = this.Bounds;
                 b.Union(value);
@@ -47,19 +99,19 @@ namespace Viewer.View
 
         private Matrix3D Rotation
         {
-            get { return stack.Peek().Second; }
-            set { stack.Peek().Second = value; }
+            get { return stack.Peek().Rotation; }
+            set { stack.Peek().Rotation = value; }
         }
 
         public void Push()
         {
             if (stack.Count > 0)
             {
-                stack.Push(new Pair<Point, Matrix3D>(Position, Rotation));
+                stack.Push(new State(stack.Peek()));
             }
             else
             {
-                stack.Push(new Pair<Point, Matrix3D>(new Point(0, 0), Matrix3D.Identity));
+                stack.Push(new State());
             }
         }
 
@@ -77,10 +129,10 @@ namespace Viewer.View
 
             if (drawLine)
             {
-                this.dc.DrawLine(this.pen, this.Position, newPosition);
+                this.dc.DrawLine(this.Pen, this.Position, newPosition);
             }
 
-            if (this.isSurfaceMode)
+            if (this.surfacePoints != null)
             {
                 this.surfacePoints.Add(newPosition);
             }
@@ -119,40 +171,41 @@ namespace Viewer.View
 
         public void SetThickness(double thickness)
         {
-            this.pen = new Pen(this.pen.Brush, thickness);
+            this.stack.Peek().Thickness = thickness;
         }
+
+        public double GetThickness()
+        {
+            return this.stack.Peek().Thickness;
+        }
+
 
         public void SetColor(double r, double g, double b)
         {
-            this.pen = new Pen(
-                new SolidColorBrush(Color.FromRgb(
+            this.stack.Peek().Color = Color.FromRgb(
                 (byte)(255 * r),
                 (byte)(255 * g),
-                (byte)(255 * b))), this.pen.Thickness);
+                (byte)(255 * b));
         }
 
         public void SetThicknessAndColor(double thickness, double r, double g, double b)
         {
-            Color color = Color.FromRgb(
+            this.stack.Peek().Thickness = thickness;
+            this.stack.Peek().Color = Color.FromRgb(
                 (byte)(255 * r),
                 (byte)(255 * g),
-                (byte)(255 * b));
-            if ((this.pen.Brush as SolidColorBrush).Color != color
-                || this.pen.Thickness != thickness)
-            {
-                this.pen = new Pen(new SolidColorBrush(color), thickness);
-            }
+                (byte)(255 * b));            
         }
 
         public void SurfaceBegin()
         {
-            this.isSurfaceMode = true;
+            this.surfacePoints = new List<Point>();
             this.surfacePoints.Add(this.Position);
         }
 
         public void SurfaceEnd()
         {
-            if (this.surfacePoints.Count > 0)
+            if (this.surfacePoints != null && this.surfacePoints.Count > 0)
             {            
                 PathFigure figure = new PathFigure();
                 figure.StartPoint = this.surfacePoints[0];
@@ -166,13 +219,10 @@ namespace Viewer.View
                 PathGeometry geometry = new PathGeometry();
                 geometry.Figures.Add(figure);
 
-                this.dc.DrawGeometry(this.pen.Brush, this.pen, geometry);
-
-                this.surfacePoints.Clear();
+                this.dc.DrawGeometry(this.Pen.Brush, this.Pen, geometry);                
             }
 
-            this.isSurfaceMode = false;
-            
+            this.surfacePoints = null;
         }
 
         private class Pair<T, U>

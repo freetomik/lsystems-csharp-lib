@@ -250,7 +250,7 @@ namespace Viewer.View
 
             var model = new ModelVisual3D();
 
-            model.Content = new GeometryModel3D(mesh, this.material);
+            model.Content = new GeometryModel3D(mesh, this.stack.Peek().Material);
 
             return model;
 
@@ -271,22 +271,73 @@ namespace Viewer.View
 
         #region ITurtle Member
 
-        private Stack<Transform3DGroup> stack;
-        private Color color;
-        private Material material;
-        private double thickness;
+        private Stack<State> stack;        
+        
         private Rect bounds;
         private Point rotateOffset;
         private Point translateOffset;
-        private List<Point3D> surfacePoints = new List<Point3D>();
-        private bool isSurfaceMode;
+        private List<Point3D> surfacePoints;
+
+        private class State
+        {
+            private Transform3DGroup group;
+            private Color color;
+
+            public double Thickness { get; set; }
+            public Transform3D Rotation
+            {
+                get { return this.group.Children[0]; }
+                set { this.group.Children[0] = value; }
+            }
+            public Transform3D Translation
+            {
+                get { return this.group.Children[1]; }
+                set { this.group.Children[1] = value; }
+            }
+
+            public Material Material { get; private set; }
+            public Color Color
+            {
+                get { return this.color; }
+                set
+                {
+                    if (this.color != value)
+                    {
+                        this.color = value;
+                        UpdateMaterial();
+                    }
+                }
+            }
+
+            private void UpdateMaterial()
+            {
+                this.Material = TurtleDisplay3d.CreateSurfaceMaterial(this.color);
+            }
+
+            public State()
+            {
+                this.Thickness = 1;
+                this.color = Colors.Black;
+
+                UpdateMaterial();
+
+                this.group = new Transform3DGroup();
+                group.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 0, 1), 0)));
+                group.Children.Add(new TranslateTransform3D());
+            }
+
+            public State(State other)
+            {
+                this.group = other.group.Clone();
+                this.Thickness = other.Thickness;
+                this.color = other.color;
+                UpdateMaterial();
+            }
+        }
 
         private void Reset()
         {
-            this.stack = new Stack<Transform3DGroup>();
-            this.color = Colors.Black;
-            this.material = CreateSurfaceMaterial(this.color);
-            this.thickness = 1;
+            this.stack = new Stack<State>();
             this.rotateOffset = new Point(0, 0);
             this.translateOffset = new Point(0, 0);
             this.bounds = new Rect();
@@ -298,14 +349,11 @@ namespace Viewer.View
         {
             if (stack.Count > 0)
             {
-                stack.Push(stack.Peek().Clone());
+                stack.Push(new State(stack.Peek()));
             }
             else
             {
-                Transform3DGroup group = new Transform3DGroup();
-                group.Children.Add(new RotateTransform3D(new AxisAngleRotation3D(new Vector3D(0, 0, 1), 0)));
-                group.Children.Add(new TranslateTransform3D());
-                stack.Push(group);
+                stack.Push(new State());
             }
         }
 
@@ -316,28 +364,29 @@ namespace Viewer.View
 
         public void Forward(double distance, bool drawLine)
         {
-            var offset = stack.Peek().Children[0].Transform(new Point3D(distance / 2, 0, 0));
-            var currentPosition = stack.Peek().Children[1].Transform(new Point3D(0, 0, 0));
+            var offset = stack.Peek().Rotation.Transform(new Point3D(distance / 2, 0, 0));
+            var currentPosition = stack.Peek().Translation.Transform(new Point3D(0, 0, 0));
 
             if (drawLine)
             {
+                double thickness = this.stack.Peek().Thickness;
                 (this.Children.Last() as ModelVisual3D).Children.Add(
                     CreateCube(
-                        this.material
-                        , new ScaleTransform3D(distance, this.thickness, this.thickness)
-                        , stack.Peek().Children[0].Clone()
+                        this.stack.Peek().Material
+                        , new ScaleTransform3D(distance, thickness, thickness)
+                        , stack.Peek().Rotation.Clone()
                         , new TranslateTransform3D(currentPosition.X + offset.X, currentPosition.Y + offset.Y, currentPosition.Z + offset.Z)
                         ));
             }
 
-            stack.Peek().Children[1] = new MatrixTransform3D(
+            stack.Peek().Translation = new MatrixTransform3D(
                 new TranslateTransform3D(offset.X * 2, offset.Y * 2, offset.Z * 2).Value *
-                stack.Peek().Children[1].Value);
+                stack.Peek().Translation.Value);
 
-            var currentPos = stack.Peek().Children[1].Transform(new Point3D(0, 0, 0));
+            var currentPos = stack.Peek().Translation.Transform(new Point3D(0, 0, 0));
             this.bounds.Union(new Point(currentPos.X, currentPos.Y));
 
-            if (this.isSurfaceMode)
+            if (this.surfacePoints != null)
             {
                 this.surfacePoints.Add(currentPos);
             }
@@ -345,52 +394,51 @@ namespace Viewer.View
 
         public void Move(double x, double y, double z)
         {
-            stack.Peek().Children[1] = new MatrixTransform3D(
+            stack.Peek().Translation = new MatrixTransform3D(
                 new TranslateTransform3D(x, y, z).Value);
         }
 
         public void MoveRel(double x, double y, double z)
         {
-            stack.Peek().Children[1] = new MatrixTransform3D(
+            stack.Peek().Translation = new MatrixTransform3D(
                 new TranslateTransform3D(x, y, z).Value *
-                stack.Peek().Children[1].Value);
+                stack.Peek().Translation.Value);
         }
 
         public void Turn(double angle)
         {
-            stack.Peek().Children[0] = 
-                new MatrixTransform3D(Matricies.TurnMartix(angle) * stack.Peek().Children[0].Value);
+            stack.Peek().Rotation =
+                new MatrixTransform3D(Matricies.TurnMartix(angle) * stack.Peek().Rotation.Value);
         }
 
         public void Pitch(double angle)
         {
-            stack.Peek().Children[0] = 
-                new MatrixTransform3D(Matricies.PitchMartix(angle) * stack.Peek().Children[0].Value);
+            stack.Peek().Rotation =
+                new MatrixTransform3D(Matricies.PitchMartix(angle) * stack.Peek().Rotation.Value);
         }
 
         public void Roll(double angle)
         {
-            stack.Peek().Children[0] = 
-                new MatrixTransform3D(Matricies.RollMartix(angle) * stack.Peek().Children[0].Value);
+            stack.Peek().Rotation =
+                new MatrixTransform3D(Matricies.RollMartix(angle) * stack.Peek().Rotation.Value);
         }
 
         public void SetThickness(double thickness)
         {
-            this.thickness = thickness;
+            this.stack.Peek().Thickness = thickness;
+        }
+
+        public double GetThickness()
+        {
+            return this.stack.Peek().Thickness;
         }
 
         public void SetColor(double r, double g, double b)
         {
-            Color color = Color.FromRgb(
+            this.stack.Peek().Color = Color.FromRgb(
                 (byte)(255 * r),
                 (byte)(255 * g),
-                (byte)(255 * b));
-
-            if (color != this.color)
-            {
-                this.color = color;
-                this.material = CreateSurfaceMaterial(color);
-            }
+                (byte)(255 * b));            
         }
 
         public void SetThicknessAndColor(double thickness, double r, double g, double b)
@@ -401,19 +449,20 @@ namespace Viewer.View
 
         public void SurfaceBegin()
         {
-            this.isSurfaceMode = true;
-            this.surfacePoints.Add(this.stack.Peek().Children[1].Transform(new Point3D(0, 0, 0)));
+            this.surfacePoints = new List<Point3D>();
+            this.surfacePoints.Add(this.stack.Peek().Translation.Transform(new Point3D(0, 0, 0)));
         }
 
         public void SurfaceEnd()
         {
-            if (this.surfacePoints.Count > 0)
+            if (this.surfacePoints != null)
             {
-                (this.Children.Last() as ModelVisual3D).Children.Add(CreateSurface());
-                this.surfacePoints.Clear();
+                if (this.surfacePoints.Count > 0)
+                {
+                    (this.Children.Last() as ModelVisual3D).Children.Add(CreateSurface());
+                }          
             }
-
-            this.isSurfaceMode = false;
+            this.surfacePoints = null;
         }
 
         #endregion
