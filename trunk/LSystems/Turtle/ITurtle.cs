@@ -17,6 +17,8 @@ namespace LSystems.Turtle
         void SurfaceEnd();
 
         void SetThickness(double thickness);
+        double GetThickness();
+
         void SetColor(double r, double g, double b);
         void SetThicknessAndColor(double thickness, double r, double g, double b);
     }

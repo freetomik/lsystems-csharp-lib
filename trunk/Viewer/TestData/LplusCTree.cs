@@ -48,7 +48,7 @@ namespace SystemDefinitionsTest
         {
             get
             {
-                return Produce(L(90), new Axis(0, BranchingAngle));
+                return Produce(TurnLeft(90), new Axis(0, BranchingAngle));
             }
         }
 
@@ -72,14 +72,14 @@ namespace SystemDefinitionsTest
         }
         
         [LSystems.Production("i >> sb i2 eb i3")]
-        [LSystems.Ignore(new[] { typeof(LSystems.Turtle.R) })]
+        [LSystems.Ignore(new[] { typeof(LSystems.Turtle.TurnRight) })]
         public object InternodeGrow1(Internode i, StartBranchModule sb, Internode i2, EndBranchModule eb, Internode i3)
         {
             return new Internode(i.Length * LengthGrowRate, i2.Area + i3.Area);
         }
 
         [LSystems.Production("i >> i2")]
-        [LSystems.Ignore(new[] { typeof(LSystems.Turtle.R) })]
+        [LSystems.Ignore(new[] { typeof(LSystems.Turtle.TurnRight) })]
         public object InternodeGrow2(Internode i, Internode i2)
         {
             return new Internode(i.Length * LengthGrowRate, i2.Area);
@@ -91,7 +91,7 @@ namespace SystemDefinitionsTest
             return Produce(
                 new Internode(1, 1),
                 StartBranch, 
-                R(meta.Angle), new Axis(-Delay, meta.Angle),
+                TurnRight(meta.Angle), new Axis(-Delay, meta.Angle),
                 EndBranch,
                 new Internode(1, 1));
         }

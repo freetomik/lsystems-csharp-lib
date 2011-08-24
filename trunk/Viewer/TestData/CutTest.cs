@@ -24,8 +24,8 @@ namespace Viewer.TestData
         {
             return Produce(
                 F(Step),
-                StartBranch, L(Angle), new X(10), new B(), EndBranch,
-                StartBranch, R(Angle), new X(10), new B(), EndBranch,
+                StartBranch, TurnLeft(Angle), new X(10), new B(), EndBranch,
+                StartBranch, TurnRight(Angle), new X(10), new B(), EndBranch,
                 new A());
         }
 
@@ -50,7 +50,7 @@ namespace Viewer.TestData
 
         public object Axiom
         {
-            get { return Produce(LineThickness(3), L(90), new A()); }
+            get { return Produce(LineThickness(3), TurnLeft(90), new A()); }
         }
 
         public int Depth

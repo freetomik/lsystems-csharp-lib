@@ -21,7 +21,7 @@ namespace Viewer.TestData
 
         public object Axiom
         {
-            get { return Produce(L(90), new i()); }
+            get { return Produce(TurnLeft(90), new i()); }
         }
 
         public int Depth
@@ -39,8 +39,8 @@ namespace Viewer.TestData
         {
             return Produce(
                 new a(),
-                StartBranch, R(this.Angle), new i(), EndBranch,
-                StartBranch, L(this.Angle), new i(), EndBranch,
+                StartBranch, TurnRight(this.Angle), new i(), EndBranch,
+                StartBranch, TurnLeft(this.Angle), new i(), EndBranch,
                 new a(), new i());
         }
 
