@@ -79,21 +79,27 @@
             </GroupBox>
             
             <GroupBox Header="Build" Grid.Column="2">
-                <ListBox 
-                    x:Name="StepsList"
-                    ItemsSource="{Binding SelectedType.Steps}"
-                    IsSynchronizedWithCurrentItem="True">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Name}"/>
-                                <TextBlock Text=", "/>
-                                <TextBlock Text="{Binding System.String.Count}"/>
-                                <TextBlock Text=" items"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                <DockPanel>
+                    <Button 
+                        DockPanel.Dock="Top"
+                        Content="Build next step"
+                        Command="{Binding SelectedType.NewStepCommand}"/>
+                    <ListBox 
+                        x:Name="StepsList"
+                        ItemsSource="{Binding SelectedType.Steps}"
+                        IsSynchronizedWithCurrentItem="True">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Name}"/>
+                                    <TextBlock Text=", "/>
+                                    <TextBlock Text="{Binding System.String.Count}"/>
+                                    <TextBlock Text=" items"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DockPanel>
             </GroupBox>            
         </Grid>
     </DockPanel>

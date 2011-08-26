@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows.Data;
+using System.Windows.Input;
 
 namespace Viewer.ViewModel
 {
@@ -42,22 +43,65 @@ namespace Viewer.ViewModel
             }
         }
 
-        public void Build()
+        public ICommand NewStepCommand
         {
-            if (system == null)
+            get { return new RelayCommand(p => this.BuildNextStep(true)); }
+        }
+
+        private bool BuildDefinition()
+        {
+            if (this.definition != null)
             {
-                definition = (LSystems.SystemDefinition)Activator.CreateInstance(definitionType);
-                try
-                {
-                    system = LSystems.SystemBuilder.BuildSystem(definition);
-                }
-                catch (InvalidOperationException)
-                {
-                	// Failure.
-                    return;
-                }
+                return true;
             }
-            else
+
+            if (this.definitionType == null)
+            {
+                return false;
+            }
+
+            this.definition = (LSystems.SystemDefinition)Activator.CreateInstance(this.definitionType);
+
+            return this.definition != null;
+        }        
+
+        private bool InitSystem()
+        {
+            if (system != null)
+            {
+                return true;
+            }
+
+            if (!BuildDefinition())
+            {
+                return false;
+            }
+
+            try
+            {
+                system = LSystems.SystemBuilder.BuildSystem(definition);
+            }
+            catch (InvalidOperationException)
+            {
+                // Failure.
+                return false;
+            }
+
+            LSystems.IRewriteRules rules = definition as LSystems.IRewriteRules;
+            if (rules != null)
+            {
+                system.String = rules.Axiom;
+            }            
+
+            steps.Clear();
+            this.steps.Insert(0, new Step() { System = system, Name = "Axiom" });
+
+            return true;            
+        }
+
+        private void BuildNextStep(bool setCurrentItem)
+        {
+            if (!InitSystem())
             {
                 return;
             }
@@ -66,40 +110,56 @@ namespace Viewer.ViewModel
             LSystems.IRewriteRules rules = definition as LSystems.IRewriteRules;
             if (rules != null)
             {
-                system.String = rules.Axiom;
-
-                if (system.String != null)
+                LSystems.System nextStep = system.Clone();
+                
+                switch (rules.RewriteDirection)
                 {
-                    for (int i = 0; i < rules.Depth; ++i)
-                    {
-                        switch (rules.RewriteDirection)
-                        {
-                            case LSystems.RewriteDirection.LeftToRight:
-                                system.RewriteLeftToRight();
-                                break;
+                    case LSystems.RewriteDirection.LeftToRight:
+                        nextStep.RewriteLeftToRight();
+                        break;
 
-                            case LSystems.RewriteDirection.RightToLeft:
-                                system.RewriteRightToLeft();
-                                break;
+                    case LSystems.RewriteDirection.RightToLeft:
+                        nextStep.RewriteRightToLeft();
+                        break;
 
-                            default:
-                                throw new InvalidOperationException("Unknown RewriteDirection");
-                        }
-                        
-                        system.Decomposite();
+                    default:
+                        throw new InvalidOperationException("Unknown RewriteDirection");
+                }
 
-                        this.steps.Insert(0, new Step() { System = system, Name =  string.Format("Step {0}", i + 1)});
+                nextStep.Decomposite();
 
-                        system = system.Clone();
-                    }
-                }            
+                this.steps.Insert(0, new Step() { System = nextStep, Name = string.Format("Step {0}", steps.Count) });
+
+                system = nextStep;
             }
 
-            if (this.steps.Count > 0)
+            if (setCurrentItem)
             {
-                CollectionViewSource.GetDefaultView(this.steps).MoveCurrentTo(this.steps[0]);
+                if (this.steps.Count > 0)
+                {
+                    CollectionViewSource.GetDefaultView(this.steps).MoveCurrentTo(this.steps[0]);
+                }
+
+                NotifyPropertyChanged("System");
             }            
-            NotifyPropertyChanged("System");
+        }
+
+        public void Build()
+        {
+            if (system == null)
+            {
+                if (InitSystem())
+                {
+                    LSystems.IRewriteRules rules = definition as LSystems.IRewriteRules;
+                    if (rules != null)
+                    {
+                        for (int i = 0; i < rules.Depth; ++i)
+                        {
+                            BuildNextStep(i == rules.Depth - 1);
+                        }
+                    }
+                }
+            }
         }
     }
 }
