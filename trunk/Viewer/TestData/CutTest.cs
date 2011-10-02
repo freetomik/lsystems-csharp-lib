@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// reference "System.Core.dll"
+// reference "LSystems.dll"
 
 namespace Viewer.TestData
 {
-    public class CutTest : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
+    public class aaCutTest : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
         public class A { }
         public class B { }
@@ -55,7 +53,7 @@ namespace Viewer.TestData
 
         public int Depth
         {
-            get { return 25; }
+            get { return 2; }
         }
 
         public LSystems.RewriteDirection RewriteDirection

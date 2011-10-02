@@ -15,7 +15,7 @@ namespace Viewer.ViewModel
     {
         private IOService ioService;
         private string fileName;
-        private string compileError;
+        private List<string> compileErrors;
         private ObservableCollection<SystemDefinitionViewModel> definitions;
         private SystemDefinitionViewModel selectedType;
 
@@ -37,22 +37,25 @@ namespace Viewer.ViewModel
 
             private set
             {
-                this.fileName = value;
-                this.NotifyPropertyChanged("FileName");
+                if (this.fileName != value)
+                {
+                    this.fileName = value;
+                    this.NotifyPropertyChanged("FileName");
+                }                
             }
         }
 
-        public string CompileError
+        public List<string> CompileErrors
         {
             get 
             { 
-                return this.compileError;
+                return this.compileErrors;
             }
 
             set
             {
-                this.compileError = value;
-                this.NotifyPropertyChanged("CompileError");
+                this.compileErrors = value;
+                this.NotifyPropertyChanged("CompileErrors");
             }
         }
 
@@ -81,11 +84,6 @@ namespace Viewer.ViewModel
             get { return new RelayCommand(p => LoadFile()); }
         }
 
-        public ICommand OpenSelfCommand
-        {
-            get { return new RelayCommand(p => LoadSelf()); }
-        } 
-
         public MainViewModel(IOService ioService)
         {
             this.ioService = ioService;
@@ -94,7 +92,7 @@ namespace Viewer.ViewModel
 
         private void LoadFile()
         {           
-            string filename = ioService.OpenFileDialog(System.IO.Directory.GetCurrentDirectory());
+            string filename = ioService.OpenFileDialog();
             if (filename.Length > 0)
             {
                 Load(filename);
@@ -104,23 +102,21 @@ namespace Viewer.ViewModel
         public void LoadSelf()
         {
             this.FileName = "Self";
-            this.CompileError = string.Empty;
+            this.CompileErrors = null;
             this.ioService.SubscribeForFileChanges(string.Empty, null);
-
             Assembly currentAssembly = Assembly.GetCallingAssembly();
-
             ExtractSystemDefinitions(Assembly.GetCallingAssembly());
         }
 
         public void Load(string fileName)
         {
+            this.FileName = fileName;
+            this.ioService.SubscribeForFileChanges(fileName, this.Reload);
+
             Assembly assembly = Compile(fileName);
             if (assembly != null)
-            {
-                this.FileName = fileName;
-                this.CompileError = string.Empty;
-                this.ioService.SubscribeForFileChanges(fileName, this.Reload);
-            
+            {                
+                this.CompileErrors = null;                
                 ExtractSystemDefinitions(assembly);
             }            
         }
@@ -156,8 +152,11 @@ namespace Viewer.ViewModel
             // Read source from file
             string source = ioService.ReadFileContent(fileName);
             if (source.Length <= 0)
-            {                
-                this.CompileError = "Specified file does not exist or empty.";
+            {
+                this.CompileErrors = new List<string>() 
+                {
+                    "Specified file does not exist or empty."
+                };                
                 return null;                
             }
 
@@ -165,18 +164,17 @@ namespace Viewer.ViewModel
             CompilerParameters compilerParameters = new CompilerParameters()
             {     
                 GenerateInMemory = true,
-                TreatWarningsAsErrors = true,
-                CompilerOptions = "/nowarn:1633"
+                TreatWarningsAsErrors = true               
             };
 
-            // Check source for #pragma reference statements        
+            // Check source for "// reference" statements        
             var reader = new System.IO.StringReader(source);
             while (true)
             {
                 string line = reader.ReadLine();
                 if (line == null) break;
                 string pattern =
-                    "\\s*#pragma\\s+reference\\s+\"(?<path>[^\"]*)\"\\s*";
+                    "\\s*//\\s+reference\\s+\"(?<path>[^\"]*)\"\\s*";
                 Match match = Regex.Match(line, pattern);
                 if (match.Success)
                 {
@@ -198,13 +196,13 @@ namespace Viewer.ViewModel
             // Show errors.
             if (results.Errors.HasErrors)
             {                
-                StringBuilder sb = new StringBuilder();
+                var list = new List<string>();
                 foreach (var err in results.Errors)
                 {
-                    sb.AppendLine(err.ToString());
+                    list.Add(err.ToString());
                 }
 
-                this.CompileError = sb.ToString();
+                this.CompileErrors = list;
                 return null;
             }
             

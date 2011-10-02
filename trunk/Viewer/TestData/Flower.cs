@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿// reference "System.Core.dll"
+// reference "LSystems.dll"
+
 
 namespace Viewer.TestData
 {
     class Flower: LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
+        
         public class P { } // plant
         public class I { } // internode
         public class L { } // leaf       

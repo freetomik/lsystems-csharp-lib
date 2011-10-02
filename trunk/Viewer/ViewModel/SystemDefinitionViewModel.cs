@@ -21,6 +21,7 @@ namespace Viewer.ViewModel
         private LSystems.System system;
         private ObservableCollection<Step> steps = new ObservableCollection<Step>();
         private LSystems.SystemDefinition definition;
+        private string systemError;
         
         public SystemDefinitionViewModel(Type type)
         {
@@ -33,7 +34,7 @@ namespace Viewer.ViewModel
             {
                 return definitionType.Name;
             }
-        }        
+        }
 
         public object Steps
         {
@@ -43,9 +44,27 @@ namespace Viewer.ViewModel
             }
         }
 
+        public string SystemError
+        {
+            get
+            {
+                return systemError;
+            }
+            set
+            {
+                systemError = value;
+                NotifyPropertyChanged("SystemError", false);
+            }
+        }
+
         public ICommand NewStepCommand
         {
             get { return new RelayCommand(p => this.BuildNextStep(true)); }
+        }
+
+        public ICommand RebuildCommand
+        {
+            get { return new RelayCommand(p => this.Rebuild()); }
         }
 
         private bool BuildDefinition()
@@ -68,12 +87,14 @@ namespace Viewer.ViewModel
         private bool InitSystem()
         {
             if (system != null)
-            {
+            {                
                 return true;
             }
 
+            SystemError = null;
+
             if (!BuildDefinition())
-            {
+            {                
                 return false;
             }
 
@@ -81,9 +102,10 @@ namespace Viewer.ViewModel
             {
                 system = LSystems.SystemBuilder.BuildSystem(definition);
             }
-            catch (InvalidOperationException)
+            catch (InvalidOperationException e)
             {
                 // Failure.
+                SystemError = e.Message;
                 return false;
             }
 
@@ -160,6 +182,15 @@ namespace Viewer.ViewModel
                     }
                 }
             }
+        }
+
+        public void Rebuild()
+        {
+            system = null;
+            definition = null;
+            steps.Clear();
+
+            Build();
         }
     }
 }
