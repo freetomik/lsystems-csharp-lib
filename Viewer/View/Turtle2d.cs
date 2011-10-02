@@ -129,6 +129,7 @@ namespace Viewer.View
 
             if (drawLine)
             {
+                // TODO: use drawing instead of calling DrawLine every time.
                 this.dc.DrawLine(this.Pen, this.Position, newPosition);
             }
 

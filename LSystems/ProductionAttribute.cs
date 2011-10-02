@@ -33,12 +33,18 @@ namespace LSystems
         {
             if (method.ReturnType == typeof(void))
             {
-                throw new InvalidOperationException("Production rule must return object.");
+                throw new InvalidOperationException(string.Format(
+                    "ProductionAttribute: Production rule must return object (class: {0}, method: {1}).", 
+                    method.DeclaringType.Name, 
+                    method.ToString()));
             }
 
             if (0 == method.GetParameters().Count())
             {
-                throw new InvalidOperationException("Production rule must have parameters.");
+                throw new InvalidOperationException(string.Format(
+                    "ProductionAttribute: Production rule must have parameters (class: {0}, method: {1}).", 
+                    method.DeclaringType.Name, 
+                    method.ToString()));
             }
 
             string[] newLeft, left, strict, right, newRight;
@@ -53,12 +59,16 @@ namespace LSystems
                 Match match = productionRegex.Match(this.Schema);
                 if (!match.Success)
                 {
-                    throw new InvalidOperationException("Production string is not correct (Regex match failure).");
+                    throw new InvalidOperationException(string.Format(
+                        "ProductionAttribute: Production string is not correct (Regex match failure, class: {0}, method: {1}).", 
+                        method.DeclaringType.Name, 
+                        method.ToString()));
                 }
 
                 if (match.Groups.Count != 6)
                 {
-                    throw new InvalidOperationException("Internal error while parsing production.");
+                    throw new InvalidOperationException(string.Format(
+                        "ProductionAttribute: Internal error while parsing production (class: {0}, method: {1}).", method.DeclaringType.Name, method.ToString()));
                 }
 
                 newLeft = FindNames(match.Groups[1].Value, "<<");
@@ -71,7 +81,10 @@ namespace LSystems
                 var methodParametersNames = (from ParameterInfo info in method.GetParameters() select info.Name).ToArray();
                 if (!allItems.SequenceEqual(methodParametersNames))
                 {
-                    throw new InvalidOperationException("List of parameters in production do not match to list of method parameters.");
+                    throw new InvalidOperationException(string.Format(
+                        "ProductionAttribute: List of parameters in production do not match to list of method parameters (class: {0}, method: {1}).", 
+                        method.DeclaringType.Name, 
+                        method.ToString()));
                 }
             }
 
@@ -82,7 +95,10 @@ namespace LSystems
             {
                 if (ignoreList.Contains(p.ParameterType))
                 {
-                    throw new InvalidOperationException("Ignored type is production function parameters list.");
+                    throw new InvalidOperationException(string.Format(
+                        "ProductionAttribute: Ignored type is production function parameters list (class: {0}, method: {1}).", 
+                        method.DeclaringType.Name, 
+                        method.ToString()));
                 }
             }
 

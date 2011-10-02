@@ -1,9 +1,8 @@
-﻿// This is an example from L+C description.
-// http://algorithmicbotany.org/papers/l+c.tcs2003.pdf
+﻿// reference "System.Core.dll"
+// reference "LSystems.dll"
 
-using System;
-using LSystems;
-using System.Collections;
+// This is an example from L+C description.
+// http://algorithmicbotany.org/papers/l+c.tcs2003.pdf
 
 namespace SystemDefinitionsTest
 {
@@ -73,7 +72,7 @@ namespace SystemDefinitionsTest
         
         [LSystems.Production("i >> sb i2 eb i3")]
         [LSystems.Ignore(new[] { typeof(LSystems.Turtle.TurnRight) })]
-        public object InternodeGrow1(Internode i, StartBranchModule sb, Internode i2, EndBranchModule eb, Internode i3)
+        public object InternodeGrow1(Internode i, LSystems.StartBranchModule sb, Internode i2, LSystems.EndBranchModule eb, Internode i3)
         {
             return new Internode(i.Length * LengthGrowRate, i2.Area + i3.Area);
         }
@@ -102,7 +101,7 @@ namespace SystemDefinitionsTest
             if (i.Length < 1) Turtle.SetColor(0, 1, 0);
             else if (i.Length < 3) Turtle.SetColor(0, 0.5, 0);
             else Turtle.SetColor(0.2, 0.1, 0);
-            Turtle.SetThickness(Math.Pow(i.Area, 0.5));
+            Turtle.SetThickness(System.Math.Pow(i.Area, 0.5));
             Turtle.Forward(i.Length, true);
         }        
     }

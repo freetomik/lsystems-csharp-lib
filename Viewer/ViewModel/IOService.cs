@@ -7,7 +7,7 @@ namespace Viewer.ViewModel
 {
     public interface IOService
     {
-        string OpenFileDialog(string defaultPath);
+        string OpenFileDialog();
         string ReadFileContent(string fileName);
 
         void SubscribeForFileChanges(string fileName, Action action);

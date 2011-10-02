@@ -1,13 +1,14 @@
-﻿// These threes are taken from "L-Systems: from the Theory to Visual Models of Plants"
+﻿// reference "System.Core.dll"
+// reference "LSystems.dll"
+
+// These threes are taken from "L-Systems: from the Theory to Visual Models of Plants"
 // http://algorithmicbotany.org/papers/l-sys.csiro96.html
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Viewer.TestData
 {
+    using System;
+
     public abstract class Tree3d : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
         public class A

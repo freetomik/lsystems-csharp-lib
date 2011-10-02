@@ -34,8 +34,9 @@ namespace LSystems
             foreach(var p in method.GetParameters())
             {
                 if (ignoreList.Contains(p.ParameterType))
-                {
-                    throw new InvalidOperationException("Ignored type is production function parameters list.");
+                {                    
+                    throw new InvalidOperationException(string.Format(
+                        "ProductionRule: Ignored type is production function parameters list (class: {0}, method: {1}).", method.DeclaringType.Name, method.ToString()));
                 }            
             }
 

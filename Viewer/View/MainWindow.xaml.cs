@@ -14,32 +14,36 @@ using System.Windows.Shapes;
 using Viewer.ViewModel;
 using System.IO;
 
-namespace Viewer
+namespace Viewer.View
 {
     /// <summary>
     /// Interaktionslogik für Window1.xaml
     /// </summary>
     public partial class MainWindow : Window, ViewModel.IOService
     {
+        private string initialDirectory;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            MainViewModel mainModel = new MainViewModel(this);
-            //mainModel.Load(@"..\..\TestData\DragonCurve.cs");
-            mainModel.LoadSelf();
-            this.DataContext = mainModel;
-        }
+            initialDirectory = System.IO.Directory.GetCurrentDirectory();
 
-        public string OpenFileDialog(string defaultPath)
+            MainViewModel mainModel = new MainViewModel(this);
+            mainModel.Load(@"..\..\TestData\DragonCurve.cs");            
+            this.DataContext = mainModel;            
+        }        
+
+        public string OpenFileDialog()
         {
             var openFileDialog = new Microsoft.Win32.OpenFileDialog();            
             openFileDialog.Filter = "cs files (*.cs)|*.cs|All files (*.*)|*.*";
-            openFileDialog.InitialDirectory = defaultPath;
+            openFileDialog.InitialDirectory = initialDirectory;
             openFileDialog.RestoreDirectory = true;
 
             if (openFileDialog.ShowDialog().Value)
             {
+                initialDirectory = System.IO.Path.GetDirectoryName(openFileDialog.FileName);
                 return openFileDialog.FileName;
             }
             else
@@ -95,6 +99,34 @@ namespace Viewer
                     }
                 });
             this.watch.EnableRaisingEvents = true;
+        }
+
+
+        CodeEditor editor;
+
+        private void EditClick(object sender, RoutedEventArgs e)
+        {
+            if (editor == null)
+            {
+                editor = new CodeEditor();
+                editor.DataContext = this.DataContext;                
+            }
+            else
+            {
+                // Hide and show will brind the window on top
+                editor.Hide();
+            }
+
+            editor.Show();
+        }
+
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            if (this.editor != null)
+            {
+                this.editor.DataContext = null;
+                this.editor.Close();
+            }
         }
     }
 }

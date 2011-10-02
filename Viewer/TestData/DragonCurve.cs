@@ -1,12 +1,7 @@
-﻿#pragma reference "System.Core.dll"
-#pragma reference "LSystems.dll"
+﻿// reference "System.Core.dll"
+// reference "LSystems.dll"
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace Viewer.TestData
+namespace Viewer.TestData 
 {
     public class DragonCurve : LSystems.Turtle.SystemDefinition, LSystems.IRewriteRules
     {
@@ -27,10 +22,15 @@ namespace Viewer.TestData
         };
         
 
+        System.Random rand = new System.Random();
+
         [LSystems.Production]
         public object lRule(l p)
         {
-            return parser.Produce("l-rF-");
+            if (rand.Next(2) == 0)
+                return parser.Produce("l-rF-");
+            else
+                return parser.Produce("l+rF+");
         }
 
         [LSystems.Production]
@@ -41,7 +41,7 @@ namespace Viewer.TestData
 
         public object Axiom
         {
-            get { return parser.Produce("Fl"); }
+            get { return Produce(LineColor(0, 1, 0), LineThickness(10), F(), new l()); }
         }
 
         public int Depth
