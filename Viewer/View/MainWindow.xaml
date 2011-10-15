@@ -36,12 +36,25 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="3d">
-                        <Grid Background="White">                         
-                            <view:TurtleDisplay3d                                              
+                        <Grid Background="White">                   
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            
+                            <StackPanel Orientation="Horizontal" Background="LightGray">
+                                <Button Content="ResetCamera" Padding="2" Command="{Binding ResetCameraCommand, ElementName=TurtleDisplay3D}"/>
+                                <CheckBox Content="Reset camera automatically" Margin="2"  VerticalAlignment="Center"  IsChecked="{Binding ResetCameraAutomatically, Mode=TwoWay, ElementName=TurtleDisplay3D}"/>
+                            </StackPanel>
+                            
+                            <view:TurtleDisplay3d       
+                                Grid.Row="1"
                                 System="{Binding SelectedItem.System, ElementName=StepsList}"
+                                MouseController="{Binding ElementName=MouseController}"
                                 ClipToBounds="True" 
                                 HorizontalAlignment="Stretch" 
-                                VerticalAlignment="Stretch">
+                                VerticalAlignment="Stretch"
+                                x:Name="TurtleDisplay3D">
 
                                 <Viewport3D.Camera>
                                     <PerspectiveCamera
@@ -61,6 +74,10 @@
                                     </ModelVisual3D.Content>
                                 </ModelVisual3D>
                             </view:TurtleDisplay3d>
+                            <Border 
+                                Grid.Row="1"
+                                Background="Transparent" 
+                                x:Name="MouseController"/>
                         </Grid>
                     </TabItem>
                 </TabControl>                

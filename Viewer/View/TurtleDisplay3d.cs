@@ -31,13 +31,44 @@ namespace Viewer.View
             (obj as TurtleDisplay3d).UpdateGeometry();
         }
 
-        public TurtleDisplay3d()
+        public UIElement MouseController
         {
-            this.MouseDown += new System.Windows.Input.MouseButtonEventHandler(TurtleDisplay3d_MouseDown);
-            this.MouseMove += new System.Windows.Input.MouseEventHandler(TurtleDisplay3d_MouseMove);
-            this.MouseUp += new MouseButtonEventHandler(TurtleDisplay3d_MouseUp);
-            this.KeyDown += new KeyEventHandler(TurtleDisplay3d_KeyDown);
-            this.Focusable = true;
+            get { return (UIElement)GetValue(MouseControllerProperty); }
+            set { SetValue(MouseControllerProperty, value); }
+        }
+        
+        public static readonly DependencyProperty MouseControllerProperty =
+            DependencyProperty.Register("MouseController", typeof(UIElement), typeof(TurtleDisplay3d),
+            new UIPropertyMetadata(null, new PropertyChangedCallback(OnMouseControllerChanged)));
+
+        private static void OnMouseControllerChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            var display = (obj as TurtleDisplay3d);
+
+            display.MouseController.MouseDown += new System.Windows.Input.MouseButtonEventHandler(display.TurtleDisplay3d_MouseDown);
+            display.MouseController.MouseMove += new System.Windows.Input.MouseEventHandler(display.TurtleDisplay3d_MouseMove);
+            display.MouseController.MouseUp += new MouseButtonEventHandler(display.TurtleDisplay3d_MouseUp);
+            display.MouseController.KeyDown += new KeyEventHandler(display.TurtleDisplay3d_KeyDown);
+            display.MouseController.Focusable = true;
+        }
+
+        public bool ResetCameraAutomatically
+        {
+            get { return (bool)GetValue(ResetCameraAutomaticallyProperty); }
+            set { SetValue(ResetCameraAutomaticallyProperty, value); }
+        }
+        
+        public static readonly DependencyProperty ResetCameraAutomaticallyProperty =
+            DependencyProperty.Register("ResetCameraAutomatically", typeof(bool), typeof(TurtleDisplay3d), new UIPropertyMetadata(true));
+
+        public ICommand ResetCameraCommand
+        {
+            get { return new ViewModel.RelayCommand(p => this.ResetCamera()); }
+        }
+
+
+        public TurtleDisplay3d()
+        {            
         }
 
         void TurtleDisplay3d_KeyDown(object sender, KeyEventArgs e)
@@ -60,7 +91,10 @@ namespace Viewer.View
 
         void TurtleDisplay3d_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            if (!this.IsMouseCaptured)
+            if (null == this.MouseController)
+                return;
+
+            if (!this.MouseController.IsMouseCaptured)
                 return;
 
             Point newPos = e.GetPosition(this);
@@ -104,14 +138,14 @@ namespace Viewer.View
 
         void TurtleDisplay3d_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Keyboard.Focus(this);
-            CaptureMouse();
+            Keyboard.Focus(MouseController);
+            this.MouseController.CaptureMouse();
             this.mousePos = e.GetPosition(this);
         }
 
         void TurtleDisplay3d_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            ReleaseMouseCapture();
+            this.MouseController.ReleaseMouseCapture();
         }
 
         private void UpdateGeometry()
@@ -162,6 +196,20 @@ namespace Viewer.View
                 }
             }
 
+            if (ResetCameraAutomatically)
+            {
+                ResetCamera();
+            }                 
+            else
+            {
+                UpdateTransform();
+            }
+        }
+
+        private void ResetCamera()
+        {
+            this.rotateOffset = new Point(0, 0);
+            this.translateOffset = new Point(0, 0);
 
             // Update camera position and offset, so that complete object will be visible.
             this.translateOffset.Y = bounds.Bottom - bounds.Height / 2;
@@ -169,7 +217,7 @@ namespace Viewer.View
 
             Point3D pos = (this.Camera as ProjectionCamera).Position;
             pos.Z = 1.8 * bounds.Height;
-            (this.Camera as ProjectionCamera).Position = pos;                   
+            (this.Camera as ProjectionCamera).Position = pos; 
         }
 
         private static Material CreateSurfaceMaterial(Color colour)
@@ -337,13 +385,17 @@ namespace Viewer.View
 
         private void Reset()
         {
-            this.stack = new Stack<State>();
-            this.rotateOffset = new Point(0, 0);
-            this.translateOffset = new Point(0, 0);
+            this.stack = new Stack<State>();            
             this.bounds = new Rect();
 
+            if (this.ResetCameraAutomatically)
+            {
+                this.rotateOffset = new Point(0, 0);
+                this.translateOffset = new Point(0, 0);
+            }            
+
             Push();
-        }
+        }        
 
         public void Push()
         {
