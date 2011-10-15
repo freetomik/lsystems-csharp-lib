@@ -20,17 +20,11 @@ namespace Viewer.TestData
                 }
             }
         };
-        
-
-        System.Random rand = new System.Random();
 
         [LSystems.Production]
         public object lRule(l p)
         {
-            if (rand.Next(2) == 0)
-                return parser.Produce("l-rF-");
-            else
-                return parser.Produce("l+rF+");
+            return parser.Produce("l-rF-");
         }
 
         [LSystems.Production]
