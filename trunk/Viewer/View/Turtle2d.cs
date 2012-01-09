@@ -129,8 +129,11 @@ namespace Viewer.View
 
             if (drawLine)
             {
-                // TODO: use drawing instead of calling DrawLine every time.
-                this.dc.DrawLine(this.Pen, this.Position, newPosition);
+                if (this.dc != null)
+                {
+                    // TODO: use drawing instead of calling DrawLine every time.
+                    this.dc.DrawLine(this.Pen, this.Position, newPosition);
+                }
             }
 
             if (this.surfacePoints != null)
@@ -207,20 +210,23 @@ namespace Viewer.View
         public void SurfaceEnd()
         {
             if (this.surfacePoints != null && this.surfacePoints.Count > 0)
-            {            
-                PathFigure figure = new PathFigure();
-                figure.StartPoint = this.surfacePoints[0];
+            {
+                if (this.dc != null)
+                {
+                    PathFigure figure = new PathFigure();
+                    figure.StartPoint = this.surfacePoints[0];
 
-                PathSegmentCollection segments = new PathSegmentCollection();
-                for (int i = 1; i < this.surfacePoints.Count; i++)
-                    segments.Add(new LineSegment(this.surfacePoints[i], true));
+                    PathSegmentCollection segments = new PathSegmentCollection();
+                    for (int i = 1; i < this.surfacePoints.Count; i++)
+                        segments.Add(new LineSegment(this.surfacePoints[i], true));
 
-                figure.Segments = segments;
+                    figure.Segments = segments;
+                    
+                    PathGeometry geometry = new PathGeometry();
+                    geometry.Figures.Add(figure);
                 
-                PathGeometry geometry = new PathGeometry();
-                geometry.Figures.Add(figure);
-
-                this.dc.DrawGeometry(this.Pen.Brush, this.Pen, geometry);                
+                    this.dc.DrawGeometry(this.Pen.Brush, this.Pen, geometry);
+                }
             }
 
             this.surfacePoints = null;

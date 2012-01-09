@@ -16,12 +16,23 @@ using System.IO;
 
 namespace Viewer.View
 {
-    /// <summary>
-    /// Interaktionslogik für Window1.xaml
-    /// </summary>
     public partial class MainWindow : Window, ViewModel.IOService
     {
         private string initialDirectory;
+
+        public object SelectedSystem
+        {
+            get { return GetValue(SelectedSystemProperty); }
+            set { SetValue(SelectedSystemProperty, value); }
+        }
+
+        public static readonly DependencyProperty SelectedSystemProperty =
+            DependencyProperty.Register(
+            "Window",
+            typeof(object),
+            typeof(MainWindow),
+            new UIPropertyMetadata(null, new PropertyChangedCallback(OnDataChanged)));
+        
 
         public MainWindow()
         {
@@ -30,8 +41,14 @@ namespace Viewer.View
             initialDirectory = System.IO.Directory.GetCurrentDirectory();
 
             MainViewModel mainModel = new MainViewModel(this);
-            mainModel.Load(@".\TestData\DragonCurve.cs");            
+            mainModel.Load(@".\TestData\CutTest.cs");            
             this.DataContext = mainModel;            
+
+
+            // Setup selected system binding.
+            Binding binding = new Binding("SelectedItem.System");
+            binding.ElementName = "StepsList";            
+            this.SetBinding(MainWindow.SelectedSystemProperty, binding);
         }        
 
         public string OpenFileDialog()
@@ -127,6 +144,11 @@ namespace Viewer.View
                 this.editor.DataContext = null;
                 this.editor.Close();
             }
+        }
+
+        private static void OnDataChanged(DependencyObject obj, DependencyPropertyChangedEventArgs e)
+        {
+            (obj as MainWindow).openGLViewContainer.SetSystem(e.NewValue as LSystems.System);
         }
     }
 }
