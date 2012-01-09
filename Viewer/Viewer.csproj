@@ -33,10 +33,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
+    <Reference Include="OpenTK.GLControl, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -106,6 +109,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="View\OpenGLViewContainer.resx">
+      <DependentUpon>OpenGLViewContainer.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -152,6 +159,12 @@
       <DependentUpon>CodeEditor.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\Matrices.cs" />
+    <Compile Include="View\OpenGLViewContainer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\OpenGLViewContainer.Designer.cs">
+      <DependentUpon>OpenGLViewContainer.cs</DependentUpon>
+    </Compile>
     <Compile Include="View\Turtle2d.cs" />
     <Compile Include="View\TurtleDisplay.cs" />
     <Compile Include="View\TurtleDisplay3d.cs" />

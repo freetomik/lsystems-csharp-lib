@@ -3,7 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:view="clr-namespace:Viewer.View"
-    Title="LSystems.Viewer" Height="600" Width="800">
+    xmlns:swf="clr-namespace:System.Windows.Forms;assembly=System.Windows.Forms"
+    Title="LSystems.Viewer" Height="600" Width="800">    
     <DockPanel>
         <DockPanel DockPanel.Dock="Top">
             <Button Padding="3"  DockPanel.Dock="Left" Command="{Binding OpenFileCommand}">
@@ -27,8 +28,14 @@
             <GridSplitter Grid.Column="3" Grid.Row="1" ResizeDirection="Columns" HorizontalAlignment="Stretch"/>                       
             
             <Border Grid.Column="4">                
-                <TabControl>                        
-                    <TabItem Header="2d">
+                <TabControl>
+                    <TabItem Header="OpenGL">
+                        <!--<view:TurtleDisplay System="{Binding SelectedItem.System, ElementName=StepsList}"/>-->
+                        <WindowsFormsHost VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+                            <view:OpenGLViewContainer x:Name="openGLViewContainer"/>
+                        </WindowsFormsHost>
+                    </TabItem>
+                    <!--<TabItem Header="2d">
                         <Grid Background="White">
                             <Viewbox StretchDirection="DownOnly">                                
                                 <view:TurtleDisplay System="{Binding SelectedItem.System, ElementName=StepsList}"/>
@@ -79,7 +86,7 @@
                                 Background="Transparent" 
                                 x:Name="MouseController"/>
                         </Grid>
-                    </TabItem>
+                    </TabItem>-->
                 </TabControl>                
             </Border>
             
