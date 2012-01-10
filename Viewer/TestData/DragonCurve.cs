@@ -10,7 +10,7 @@ namespace Viewer.TestData
 
         private LSystems.Turtle.StringParser parser = new LSystems.Turtle.StringParser()
         {
-            CharToObject = c =>
+            CharToObject = (c, p) =>
             {
                 switch (c)
                 {
@@ -35,7 +35,7 @@ namespace Viewer.TestData
 
         public object Axiom
         {
-            get { return Produce(LineColor(0, 1, 0), LineThickness(10), F(), new l()); }
+            get { return Produce(LineColor(0, 1, 0), F(), new l()); }
         }
 
         public int Depth

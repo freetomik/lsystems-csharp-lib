@@ -101,7 +101,7 @@ namespace SystemDefinitionsTest
             if (i.Length < 1) Turtle.SetColor(0, 1, 0);
             else if (i.Length < 3) Turtle.SetColor(0, 0.5, 0);
             else Turtle.SetColor(0.2, 0.1, 0);
-            Turtle.SetThickness(System.Math.Pow(i.Area, 0.5));
+            Turtle.Thickness = System.Math.Pow(i.Area, 0.5);
             Turtle.Forward(i.Length, true);
         }        
     }

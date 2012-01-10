@@ -7,57 +7,107 @@ namespace LSystems.Turtle
 {
     public class StringParser
     {
-        public double Angle { get; set; }
-        private double Distance { get; set; }
-
-        public Func<char, object> CharToObject { get; set; }
+        public bool AllowParameters { get; set; }
+               
+        public Func<char, object[], object> CharToObject { get; set; }
 
         public StringParser()
         {
-            this.CharToObject = (p => null);
-            this.Angle = 90;
-            this.Distance = 90;
+            this.AllowParameters = true;
+            this.CharToObject = ((a, b) => null);            
         }
 
         public List<object> Produce(string text)
         {
-            List<object> result = new List<object>();
-            foreach (char c in text)
+            List<object> result = new List<object>();          
+            if (AllowParameters)
             {
-                object item = TransformCharToObject(c);
-                if (item != null)
+                for (int i = 0; i < text.Length;)
                 {
-                    result.Add(item);
+                    char c = text[i];
+                    ++i;
+
+                    object[] parameters = null;
+
+                    if (i < text.Length)
+                    {
+                        if (text[i] == '(')
+                        {
+                            // Detected start of parameters list.
+                            for (int j = i + 1; j < text.Length; ++j)
+                            {
+                                if (text[j] == ')')
+                                {
+                                    // Detected end of parameters list.
+                                    string[] parametersString = text.Substring(i + 1, j - i - 1).Split(',');
+                                    if (parametersString.Length > 0)
+                                    {
+                                        List<object> parametersList = new List<object>();
+                                        foreach (string s in parametersString)
+                                        {
+                                            double parameter = 0;
+                                            double.TryParse(s, out parameter);
+                                            parametersList.Add(parameter);
+                                        }
+                                        parameters = parametersList.ToArray();
+                                    }
+                                    i = j + 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    object item = TransformCharToObject(c, parameters);
+                    if (item != null) { result.Add(item); }
+                }
+            }
+            else 
+            {
+                foreach (char c in text)
+                {
+                    object item = TransformCharToObject(c, null);
+                    if (item != null) { result.Add(item); }
                 }
             }
             return result;
         }
 
-        private object TransformCharToObject(char c)
+        private object TransformCharToObject(char c, object[] parameters)
         {
-            return CharToObject(c) ?? DefaultReplacement(c);            
+            return CharToObject(c, parameters) ?? DefaultReplacement(c, parameters);
         }
 
-        private object DefaultReplacement(char c)
+        static Dictionary<char, Type> stdTypes = new Dictionary<char, Type>()
         {
-            switch (c)
+             { '[', typeof(StartBranchModule) },
+             { ']', typeof(EndBranchModule) },
+             { '%', typeof(CutModule) },
+             { 'F', typeof(F) },
+             { 'f', typeof(f) },
+             { '+', typeof(TurnLeft) },
+             { '-', typeof(TurnRight) },
+             { '|', typeof(TurnAround) },
+             { '^', typeof(PitchUp) },
+             { '&', typeof(PitchDown) },
+             { '\\', typeof(RollLeft) },
+             { '<', typeof(RollLeft) },
+             { '/', typeof(RollRight) },
+             { '>', typeof(RollRight) },
+             { '{', typeof(SurfaceBegin) },
+             { '}', typeof(SurfaceEnd) }
+        };
+
+        private object DefaultReplacement(char c, object[] parameters)
+        {            
+            Type type = null;
+
+            if (!stdTypes.TryGetValue(c, out type))
             {
-                default: return null;
-                case '[': return new StartBranchModule();
-                case ']': return new EndBranchModule();
-                case '%': return new CutModule();
-                case F.Letter: return new F(this.Distance);
-                case f.Letter: return new f(this.Distance);
-                case TurnLeft.Letter: return new TurnLeft(this.Angle);
-                case TurnRight.Letter: return new TurnRight(this.Angle);
-                case TurnAround.Letter: return new TurnAround();
-                case PitchUp.Letter: return new PitchUp(this.Angle);
-                case PitchDown.Letter: return new PitchDown(this.Angle);
-                case RollLeft.Letter: return new RollLeft(this.Angle);
-                case RollRight.Letter: return new RollRight(this.Angle);
-                case SurfaceBegin.Letter: return new SurfaceBegin();
-                case SurfaceEnd.Letter: return new SurfaceEnd();                
+                return null;
             }
+
+            return Activator.CreateInstance(type, parameters);
         }
     }
 }

@@ -13,8 +13,8 @@ namespace Viewer.TestData
         private LSystems.Turtle.StringParser parser = 
             new LSystems.Turtle.StringParser()
         {
-            Angle = 22.5,            
-            CharToObject = c =>
+            //!!!Angle = 22.5,            
+            CharToObject = (c, p) =>
             {
                 switch (c)
                 {
@@ -55,7 +55,7 @@ namespace Viewer.TestData
         [LSystems.Turtle.Interpret]
         public void ReduceThickness(ThicknessDown td)
         {
-            Turtle.SetThickness(0.5 * Turtle.GetThickness());
+            Turtle.Thickness = 0.5 * Turtle.Thickness;
         }
 
         #region IRewriteRules Member
