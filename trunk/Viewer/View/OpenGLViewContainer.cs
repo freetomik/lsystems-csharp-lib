@@ -10,7 +10,6 @@ using OpenTK.Graphics.OpenGL;
 using System.Windows;
 using System.Collections;
 using System.Runtime.InteropServices;
-//using System.Windows.Media.Media3D;
 using System.Diagnostics;
 
 namespace Viewer.View
@@ -19,6 +18,8 @@ namespace Viewer.View
     {
         private bool loaded = false;
         private LSystems.System system = null;
+
+        private bool isOrtho = false;
 
         private IntPtr vertexesPtr = IntPtr.Zero;
         private IntPtr normalsPtr = IntPtr.Zero;
@@ -87,6 +88,8 @@ namespace Viewer.View
 
         void OpenGLViewContainerOnLoad(object sender, EventArgs e)
         {
+            UpdateProjectionButtons();
+
             this.loaded = true;
             
             GL.Enable(EnableCap.DepthTest);
@@ -151,33 +154,41 @@ namespace Viewer.View
                 float controlWidth = this.glControl1.Width;
                 float controlHeight = this.glControl1.Height;
 
-                float screenScale = 1.2f;
-                float orthoWidth = (bounds.X / 2) * screenScale;
-                float orthoHeight = (bounds.Y / 2) * screenScale;
-
                 float controlAspect = controlWidth / controlHeight;
-                float orthoAspect = orthoWidth / orthoHeight;
-
-                if (orthoAspect > controlAspect)
+                
+                float maxSize = bounds.Length * 0.5f;
+                float orthoWidth = 0, orthoHeight = 0;
+                if (controlWidth > controlHeight)
                 {
-                    orthoHeight = orthoHeight / controlAspect;
+                    orthoHeight = maxSize;
+                    orthoWidth = maxSize * controlAspect;
+
+                }
+                else 
+                {
+                    orthoWidth = maxSize;
+                    orthoHeight = maxSize / controlAspect;
+                }
+                
+                if (isOrtho)
+                {
+                    GL.Ortho(-orthoWidth, orthoWidth, -orthoHeight, orthoHeight, -100000, 100000);
                 }
                 else
                 {
-                    orthoWidth = orthoWidth * controlAspect;
+                    OpenTK.Matrix4 m = OpenTK.Matrix4.CreatePerspectiveFieldOfView((float)(Math.PI * 0.3f), controlAspect, 1, 2 + orthoHeight * 10);
+                    GL.MultMatrix(ref m);
                 }
-
-                //GL.Ortho(-orthoWidth, orthoWidth, -orthoHeight, orthoHeight, -100000, 100000);
-
-                OpenTK.Matrix4 m = OpenTK.Matrix4.CreatePerspectiveFieldOfView((float)(Math.PI * 0.3f), controlAspect, 1, 2 + orthoHeight * 10);
-                GL.MultMatrix(ref m);
 
                 // Render L-System.
                 GL.MatrixMode(MatrixMode.Modelview);
                 GL.LoadIdentity();
 
-                OpenTK.Matrix4 lookAt = OpenTK.Matrix4.LookAt(0, 0, orthoHeight * 2, 0, 0, 0, 0, 1, 0);
-                GL.MultMatrix(ref lookAt);
+                if (!isOrtho)
+                {
+                    OpenTK.Matrix4 lookAt = OpenTK.Matrix4.LookAt(0, 0, orthoHeight * 2, 0, 0, 0, 0, 1, 0);
+                    GL.MultMatrix(ref lookAt);
+                }
 
                 GL.Rotate(cameraAngle.X, 1, 0, 0);
                 GL.Rotate(cameraAngle.Y, 0, 1, 0);
@@ -333,6 +344,9 @@ namespace Viewer.View
             Create(this.triNormals, ref this.triNormalsPtr);
 
             this.numTriVertexes = this.triVertexes.Count / 3;
+
+            this.toolStripLabelStatistics.Text =
+                string.Format("{0} quads, {1} triangles.", this.numQuadVertexes / 4, this.numTriVertexes / 3);
             
             // Force redraw.
             glControl1.Invalidate();
@@ -343,6 +357,7 @@ namespace Viewer.View
         private Stack<State> stack = new Stack<State>();
         private List<OpenTK.Vector3> surfacePoints;
         private List<OpenTK.Graphics.Color4> surfaceColors;
+
 
         private void ResetState()
         {
@@ -357,10 +372,14 @@ namespace Viewer.View
             public OpenTK.Matrix4 Translation { get; set; }
             public OpenTK.Graphics.Color4 Color { get; set; }
             public float Thickness { get; set; }
+            public float Distance { get; set; }
+            public float Angle { get; set; }
             
             public State()
             {
                 this.Thickness = 1;
+                this.Distance = 10;
+                this.Angle = 90;
                 this.Color = OpenTK.Graphics.Color4.White;
                 this.Rotation = OpenTK.Matrix4.Identity;
                 this.Translation = OpenTK.Matrix4.Identity;
@@ -372,7 +391,27 @@ namespace Viewer.View
                 this.Color = other.Color;
                 this.Rotation = other.Rotation;
                 this.Translation = other.Translation;
+                this.Angle = other.Angle;
+                this.Distance = other.Distance;
             }
+        }
+
+        public double Angle
+        {
+            get { return stack.Peek().Angle; }
+            set { stack.Peek().Angle = (float)value; }
+        }
+
+        public double Distance
+        {
+            get { return stack.Peek().Distance; }
+            set { stack.Peek().Distance = (float)value; }
+        }
+
+        public double Thickness
+        {
+            get { return stack.Peek().Thickness; }
+            set { stack.Peek().Thickness = (float)value; }
         }
            
         public void Push()
@@ -417,15 +456,6 @@ namespace Viewer.View
             Add(this.colors, stack.Peek().Color);            
         }
 
-        //static private int[] indexes = new int[] {
-        //            0, 1, 2, 3, // bottom
-        //            4, 7, 6, 5, // top
-        //            0, 4, 5, 1, 
-        //            1, 5, 6, 2, 
-        //            2, 6, 7, 3, 
-        //            3, 7, 4, 0
-        //        };
-
         static private int[] indexes = new int[] {
                     0, 3, 2, 1, // bottom
                     4, 5, 6, 7, // top
@@ -457,11 +487,12 @@ namespace Viewer.View
                 new OpenTK.Vector3(pts[i3 * 3], pts[i3 * 3 + 1], pts[i3 * 3 + 2]));
 	    }
 
-        public void Forward(double distance, bool drawLine)
+        public void Forward(double? distPtr, bool drawLine)
         {
+            double distance = distPtr.HasValue ? distPtr.Value : this.Distance;
             if (drawLine)
             {
-                float thickness = (float)(this.GetThickness() / 2);
+                float thickness = (float)(this.Thickness / 2);
                 float length = (float)distance;
     
                 float[] pts = new float[] {
@@ -560,36 +591,32 @@ namespace Viewer.View
                 stack.Peek().Translation);
         }
 
-        public void Turn(double angle)
+        public void Turn(double? anglePtr, bool left)
         {
+            double angle = anglePtr.HasValue ? anglePtr.Value : this.Angle;
+            if (!left) { angle = -angle; }
             stack.Peek().Rotation = OpenTK.Matrix4.Mult( 
                 TurnMartix(angle),
                 stack.Peek().Rotation);
         }
 
-        public void Pitch(double angle)
+        public void Pitch(double? anglePtr, bool up)
         {
+            double angle = anglePtr.HasValue ? anglePtr.Value : this.Angle;
+            if (!up) { angle = -angle; }
             stack.Peek().Rotation = OpenTK.Matrix4.Mult( 
                 PitchMartix(angle),
                 stack.Peek().Rotation);
         }
 
-        public void Roll(double angle)
+        public void Roll(double? anglePtr, bool clockwise)
         {
+            double angle = anglePtr.HasValue ? anglePtr.Value : this.Angle;
+            if (!clockwise) { angle = -angle; }
             stack.Peek().Rotation = OpenTK.Matrix4.Mult(
                 RollMartix(angle),
                 stack.Peek().Rotation);
-        }
-
-        public void SetThickness(double thickness)
-        {
-            this.stack.Peek().Thickness = (float)thickness;
-        }
-
-        public double GetThickness()
-        {
-            return this.stack.Peek().Thickness;
-        }
+        }        
 
         public void SurfaceBegin()
         {
@@ -609,13 +636,7 @@ namespace Viewer.View
         public void SetColor(double r, double g, double b)
         {
             stack.Peek().Color = Color.FromArgb((int)(r * 255), (int)(g * 255), (int)(b * 255));
-        }
-
-        public void SetThicknessAndColor(double thickness, double r, double g, double b)
-        {
-            SetColor(r, g, b);
-            SetThickness(thickness);
-        }
+        }        
 
         #endregion
 
@@ -659,6 +680,37 @@ namespace Viewer.View
                 0, cos, -sin, 0,
                 0, sin, cos, 0,
                 0, 0, 0, 1);
+        }
+
+        private void UpdateProjectionButtons()
+        {
+            this.toolStripButtonOrtho.Checked = isOrtho;
+            this.toolStripButtonPerspective.Checked = !isOrtho;
+        }
+
+        private void toolStripButtonOrtho_Click(object sender, EventArgs e)
+        {
+            this.isOrtho = true;
+
+            UpdateProjectionButtons();
+
+            this.glControl1.Invalidate();
+        }
+
+        private void toolStripButtonPerspective_Click(object sender, EventArgs e)
+        {
+            this.isOrtho = false;
+
+            UpdateProjectionButtons();
+
+            this.glControl1.Invalidate();
+        }
+
+        private void toolStripButtonUndoCamera_Click(object sender, EventArgs e)
+        {
+            this.cameraAngle = new OpenTK.Vector3(0, 0, 0);
+
+            this.glControl1.Invalidate();
         }
     }
 }

@@ -16,24 +16,30 @@ namespace LSystems.Turtle
         public void Register<T>(Action<T> action)
         {
             registeredTypes[typeof(T)] = p => action((T)p);
+        }        
+
+        static double? MValue(Module<double> m)
+        {
+            if (m.Initialized) return m.Value;
+            else return null;
         }
 
         public Interpreter()
         {            
             Register<StartBranchModule>(p => Turtle.Push());
             Register<EndBranchModule>(p => Turtle.Pop());
-            Register<F>(p => Turtle.Forward(p.Value, true));
-            Register<f>(p => Turtle.Forward(p.Value, false));
-            Register<TurnLeft>(p => Turtle.Turn(p.Value));
-            Register<TurnRight>(p => Turtle.Turn(-p.Value));
-            Register<TurnAround>(p => Turtle.Turn(180));
-            Register<PitchUp>(p => Turtle.Pitch(p.Value));
-            Register<PitchDown>(p => Turtle.Pitch(-p.Value));
-            Register<RollLeft>(p => Turtle.Roll(p.Value));
-            Register<RollRight>(p => Turtle.Roll(-p.Value));
+            Register<F>(p => Turtle.Forward(MValue(p), true));
+            Register<f>(p => Turtle.Forward(MValue(p), false));
+            Register<TurnLeft>(p => Turtle.Turn(MValue(p), true));
+            Register<TurnRight>(p => Turtle.Turn(MValue(p), false));
+            Register<TurnAround>(p => Turtle.Turn(180, true));
+            Register<PitchUp>(p => Turtle.Pitch(MValue(p), true));
+            Register<PitchDown>(p => Turtle.Pitch(MValue(p), false));
+            Register<RollLeft>(p => Turtle.Roll(MValue(p), true));
+            Register<RollRight>(p => Turtle.Roll(MValue(p), false));
             Register<MoveTo>(p => Turtle.Move(p.Value.X, p.Value.Y, 0));
             Register<MoveToRel>(p => Turtle.MoveRel(p.Value.X, p.Value.Y, 0));
-            Register<LineThickness>(p => Turtle.SetThickness(p.Value));
+            Register<LineThickness>(p => Turtle.Thickness = p.Value);
             Register<LineColor>(p => Turtle.SetColor(p.Value.R, p.Value.G, p.Value.B));
             Register<SurfaceBegin>(p => Turtle.SurfaceBegin());
             Register<SurfaceEnd>(p => Turtle.SurfaceEnd());
@@ -43,8 +49,8 @@ namespace LSystems.Turtle
         {
             foreach (var method in interpreter.GetType().GetMethods())
             {
-                InterpretAttribute i =
-                   (InterpretAttribute)Attribute.GetCustomAttribute(method, typeof(InterpretAttribute), false);
+                InterpretAttribute i = (InterpretAttribute)
+                    Attribute.GetCustomAttribute(method, typeof(InterpretAttribute), false);
 
                 if (i == null)
                 {

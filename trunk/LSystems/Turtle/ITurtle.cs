@@ -3,23 +3,26 @@
 namespace LSystems.Turtle
 {
     public interface ITurtle
-    {        
+    {
+        double Distance { get; set; }
+        double Angle { get; set; }
+        double Thickness { get; set; }
+     
         void Push();
         void Pop();
-        void Forward(double distance, bool drawLine);
+        
+        void Forward(double? distance, bool drawLine);
+
         void Move(double x, double y, double z);
         void MoveRel(double x, double y, double z);
-        void Turn(double angle);
-        void Pitch(double angle);
-        void Roll(double angle);
+        
+        void Turn(double? angle, bool left);
+        void Pitch(double? angle, bool up);
+        void Roll(double? angle, bool clockwise);
 
         void SurfaceBegin();
         void SurfaceEnd();
 
-        void SetThickness(double thickness);
-        double GetThickness();
-
-        void SetColor(double r, double g, double b);
-        void SetThicknessAndColor(double thickness, double r, double g, double b);
+        void SetColor(double r, double g, double b);        
     }
 }

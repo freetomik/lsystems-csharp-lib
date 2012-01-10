@@ -13,7 +13,7 @@ namespace Viewer.TestData
         private LSystems.Turtle.StringParser parser = 
             new LSystems.Turtle.StringParser()
         {
-            CharToObject = c =>
+            CharToObject = (c, p) =>
             {
                 switch (c)
                 {
@@ -56,7 +56,8 @@ namespace Viewer.TestData
         [LSystems.Turtle.Interpret]
         public void Draw(LSystems.Turtle.F f)
         {
-            this.Turtle.SetThicknessAndColor(33, 1, color, 0);            
+            this.Turtle.Thickness = 33;
+            this.Turtle.SetColor(1, color, 0);            
             this.Turtle.Forward(100, true);
 
             color += delta;
