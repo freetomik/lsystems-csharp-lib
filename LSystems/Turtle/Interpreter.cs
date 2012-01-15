@@ -43,6 +43,8 @@ namespace LSystems.Turtle
             Register<LineColor>(p => Turtle.SetColor(p.Value.R, p.Value.G, p.Value.B));
             Register<SurfaceBegin>(p => Turtle.SurfaceBegin());
             Register<SurfaceEnd>(p => Turtle.SurfaceEnd());
+            Register<Angle>(p => Turtle.Angle = p.Value);
+            Register<Distance>(p => Turtle.Distance = p.Value);
         }
         
         public void RegisterExternalFunctions(object interpreter)

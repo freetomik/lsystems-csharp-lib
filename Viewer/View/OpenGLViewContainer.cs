@@ -38,6 +38,8 @@ namespace Viewer.View
         private List<float> triColors = new List<float>();
         private int numTriVertexes = 0;
 
+        private List<OpenTK.Vector3> helperLines = new List<OpenTK.Vector3>();
+
         private OpenTK.Vector3 minPoint;
         private OpenTK.Vector3 maxPoint;
                 
@@ -212,6 +214,15 @@ namespace Viewer.View
                 GL.Vertex3(0, 0, 0);
                 GL.Vertex3(0, 0, axisLength);
                 GL.End();
+
+                GL.Begin(BeginMode.Lines);
+                GL.Color3(Color.Orange);
+                for (int i = 0; i < helperLines.Count; i += 2)
+                {
+                    GL.Vertex3(helperLines[i]);
+                    GL.Vertex3(helperLines[i + 1]);
+                }
+                GL.End();
                 
                 GL.Enable(EnableCap.Lighting);
 
@@ -311,6 +322,8 @@ namespace Viewer.View
             this.triNormals.Clear();
             this.triColors.Clear();
 
+            this.helperLines.Clear();
+
             ResetState();
 
             this.Push();
@@ -333,6 +346,28 @@ namespace Viewer.View
 
             this.Pop();
 
+            // Generate normals.
+            for (int i = 0; i < vertexes.Count; i += 12)
+            {
+                OpenTK.Vector3 normal = CalcNormal(
+                    new OpenTK.Vector3(vertexes[i], vertexes[i + 1], vertexes[i + 2]),
+                    new OpenTK.Vector3(vertexes[i + 3], vertexes[i + 4], vertexes[i + 5]),
+                    new OpenTK.Vector3(vertexes[i + 6], vertexes[i + 7], vertexes[i + 8]));
+
+                for (int j = 0; j < 4; ++j) { Add(normals, normal); }
+            }
+
+            for (int i = 0; i < triVertexes.Count; i += 9)
+            {
+                OpenTK.Vector3 normal = CalcNormal(
+                    new OpenTK.Vector3(triVertexes[i], triVertexes[i + 1], triVertexes[i + 2]),
+                    new OpenTK.Vector3(triVertexes[i + 3], triVertexes[i + 4], triVertexes[i + 5]),
+                    new OpenTK.Vector3(triVertexes[i + 6], triVertexes[i + 7], triVertexes[i + 8]));
+
+                for (int j = 0; j < 3; ++j) { Add(triNormals, normal); }
+            }
+
+            // Copy arrays in non-managed memory.
             Create(this.vertexes, ref this.vertexesPtr);
             Create(this.colors, ref this.colorsPtr);
             Create(this.normals, ref this.normalsPtr);
@@ -353,6 +388,10 @@ namespace Viewer.View
         }
 
         #region ITurtle Member        
+
+
+        private int numEdges = 12;
+        private bool simpleMode = false;
 
         private Stack<State> stack = new Stack<State>();
         private List<OpenTK.Vector3> surfacePoints;
@@ -375,11 +414,14 @@ namespace Viewer.View
             public float Distance { get; set; }
             public float Angle { get; set; }
             
+            public List<OpenTK.Vector3> fPoints = new List<OpenTK.Vector3>();
+            public OpenTK.Matrix4 fMatrix;
+
             public State()
             {
                 this.Thickness = 1;
                 this.Distance = 10;
-                this.Angle = 90;
+                this.Angle = 90;                
                 this.Color = OpenTK.Graphics.Color4.White;
                 this.Rotation = OpenTK.Matrix4.Identity;
                 this.Translation = OpenTK.Matrix4.Identity;
@@ -392,7 +434,11 @@ namespace Viewer.View
                 this.Rotation = other.Rotation;
                 this.Translation = other.Translation;
                 this.Angle = other.Angle;
-                this.Distance = other.Distance;
+                this.Distance = other.Distance;                
+                this.fPoints = other.fPoints;
+                this.fMatrix = other.fMatrix;
+
+                other.fPoints = new List<OpenTK.Vector3>();                
             }
         }
 
@@ -421,13 +467,72 @@ namespace Viewer.View
                 stack.Push(new State(stack.Peek()));
             }
             else
-            {
+            {                
                 stack.Push(new State());
             }
         }
 
+        private void BuildWalls(OpenTK.Vector3[] wallPoints, OpenTK.Graphics.Color4 color)
+        {
+            for (int i = 0; i < numEdges; ++i)
+            {
+                int a = i;
+                int b = i < numEdges - 1 ? i + 1 : 0;
+                
+                Add(this.vertexes, wallPoints[b]);
+                Add(this.vertexes, wallPoints[a]);
+                Add(this.vertexes, wallPoints[a + numEdges]);
+                Add(this.vertexes, wallPoints[b + numEdges]);
+
+                Add(this.colors, color);
+                Add(this.colors, color);
+                Add(this.colors, color);
+                Add(this.colors, color);                
+            }
+        }
+
+        private void BuildUpperCap(OpenTK.Vector3[] points, OpenTK.Graphics.Color4 color)
+        {
+            for (int j = 2; j < numEdges; ++j)
+            {
+                Add(this.triVertexes, points[numEdges]);
+                Add(this.triVertexes, points[numEdges + j]);
+                Add(this.triVertexes, points[numEdges + j - 1]);
+
+                Add(this.triColors, color);
+                Add(this.triColors, color);
+                Add(this.triColors, color);
+            }
+        }
+
+        private void BuildLowerCap(OpenTK.Vector3[] points, OpenTK.Graphics.Color4 color)
+        {
+            for (int j = 2; j < numEdges; ++j)
+            {
+                Add(this.triVertexes, points[0]);
+                Add(this.triVertexes, points[j - 1]);
+                Add(this.triVertexes, points[j]);
+
+                Add(this.triColors, color);
+                Add(this.triColors, color);
+                Add(this.triColors, color);
+            }
+        }       
+
         public void Pop()
         {
+            // Finalize cap of the current branch.
+            if (stack.Peek().fPoints.Count > 0)
+            {
+                BuildWalls(
+                    stack.Peek().fPoints.ToArray(), 
+                    stack.Peek().Color);
+
+                BuildUpperCap(
+                    stack.Peek().fPoints.ToArray(),
+                    stack.Peek().Color);
+            }
+
             stack.Pop();
         }
 
@@ -447,24 +552,6 @@ namespace Viewer.View
 
         static OpenTK.Vector3 zeroVector = new OpenTK.Vector3(0, 0, 0);
 
-        private void Vertex(float x, float y, float z)
-        {
-            var currentPosition = OpenTK.Vector3.Transform(zeroVector, stack.Peek().Translation);
-            var p = OpenTK.Vector3.Transform(new OpenTK.Vector3(x, y, z), stack.Peek().Rotation);
-
-            Add(this.vertexes, p + currentPosition);
-            Add(this.colors, stack.Peek().Color);            
-        }
-
-        static private int[] indexes = new int[] {
-                    0, 3, 2, 1, // bottom
-                    4, 5, 6, 7, // top
-                    0, 1, 5, 4, 
-                    1, 2, 6, 5, 
-                    2, 3, 7, 6, 
-                    3, 0, 4, 7
-                };
-
         OpenTK.Vector3 CalcNormal(OpenTK.Vector3 _v1, OpenTK.Vector3 _v2, OpenTK.Vector3 _v3)
         {
             OpenTK.Vector3 v1 = _v2 - _v1;
@@ -475,17 +562,24 @@ namespace Viewer.View
             return normal;
         }
 
-        OpenTK.Vector3 CalcNormal(int surfaceIndex, float[] pts)
-	    {
-            int i1 = indexes[surfaceIndex * 4];
-            int i2 = indexes[surfaceIndex * 4 + 1];
-            int i3 = indexes[surfaceIndex * 4 + 2];            
+        float AngleBetween(OpenTK.Matrix4 m1, OpenTK.Matrix4 m2)
+        {
+            var v1 = OpenTK.Vector3.Transform(new OpenTK.Vector3(1, 0, 0), m1);
+            var v2 = OpenTK.Vector3.Transform(new OpenTK.Vector3(1, 0, 0), m2);
+            return OpenTK.Vector3.CalculateAngle(v1, v2);
+        }
 
-            return CalcNormal(
-                new OpenTK.Vector3(pts[i1 * 3], pts[i1 * 3 + 1], pts[i1 * 3 + 2]),
-                new OpenTK.Vector3(pts[i2 * 3], pts[i2 * 3 + 1], pts[i2 * 3 + 2]),
-                new OpenTK.Vector3(pts[i3 * 3], pts[i3 * 3 + 1], pts[i3 * 3 + 2]));
-	    }
+        OpenTK.Vector3 VectorProjection(OpenTK.Vector3 basis, OpenTK.Vector3 v)
+        {
+            float length = v.Length;
+
+            OpenTK.Vector3 result = basis;
+            result.Normalize();
+
+            return result * (length * (float)Math.Cos(OpenTK.Vector3.CalculateAngle(basis, v)));
+        }
+
+        private const float minAngle = 0.0001f;
 
         public void Forward(double? distPtr, bool drawLine)
         {
@@ -494,32 +588,143 @@ namespace Viewer.View
             {
                 float thickness = (float)(this.Thickness / 2);
                 float length = (float)distance;
-    
-                float[] pts = new float[] {
-                    0, thickness, thickness, 
-                    0, -thickness, thickness, 
-                    0, -thickness, -thickness, 
-                    0, thickness, -thickness, 
 
-                    length, thickness, thickness, 
-                    length, -thickness, thickness, 
-                    length, -thickness, -thickness, 
-                    length, thickness, -thickness
-                };
+                var currentPosition = OpenTK.Vector3.Transform(zeroVector, stack.Peek().Translation);                
 
-                for (int i = 0; i < indexes.Length; ++i)                
+                OpenTK.Vector3[] points = new OpenTK.Vector3[numEdges * 2];
+
+                if (this.stack.Peek().fPoints.Count > 0)
                 {
-                    int index = indexes[i] * 3;
-                    Vertex(pts[index], pts[index + 1], pts[index + 2]);
+                    OpenTK.Vector3 x1 = new OpenTK.Vector3(1, 0, 0);
+                    OpenTK.Vector3 vx1 = OpenTK.Vector3.Transform(x1, this.stack.Peek().fMatrix);
+                    OpenTK.Vector3 vx2 = OpenTK.Vector3.Transform(x1, this.stack.Peek().Rotation);
+
+                    float angle = OpenTK.Vector3.CalculateAngle(vx1, vx2);
+                    OpenTK.Vector3 rotateAxis = OpenTK.Vector3.Cross(vx1, vx2);
+
+                    for (int i = 0; i < numEdges; ++i)
+                    {
+                        var p = this.stack.Peek().fPoints[numEdges + i] - currentPosition;
+                        p.Normalize();
+
+                        if (angle > minAngle)
+                        {
+                            p = OpenTK.Vector3.Transform(p, OpenTK.Matrix4.Rotate(rotateAxis, angle));
+                        }
+
+                        p = p * thickness;
+                        points[i] = currentPosition + p;
+                        points[i + numEdges] = currentPosition + p + vx2 * length;
+                    }           
+                }
+                else
+                {
+                    // Create corner points.                                
+                    for (int i = 0; i < numEdges; ++i)
+                    {
+                        float angle = (float)((i + 0.5f) * (Math.PI * 2) / numEdges);
+                        points[i].Y = (float)(thickness * Math.Sin(angle));
+                        points[i].Z = (float)(thickness * Math.Cos(angle));
+                        points[i].X = 0;
+
+                        points[i] = currentPosition +
+                            OpenTK.Vector3.Transform(points[i], stack.Peek().Rotation);
+
+                        points[i + numEdges].Y = (float)(thickness * Math.Sin(angle));
+                        points[i + numEdges].Z = (float)(thickness * Math.Cos(angle));
+                        points[i + numEdges].X = length;
+
+                        points[i + numEdges] = currentPosition +
+                            OpenTK.Vector3.Transform(points[i + numEdges], stack.Peek().Rotation);
+                    }
                 }
 
-                for (int i = 0; i < 6; ++i)
+                if (simpleMode)
                 {
-                    OpenTK.Vector3 normal = OpenTK.Vector3.Transform(CalcNormal(i, pts), stack.Peek().Rotation);
-                    Add(this.normals, normal);
-                    Add(this.normals, normal);
-                    Add(this.normals, normal);
-                    Add(this.normals, normal);                    
+                    BuildUpperCap(points, stack.Peek().Color);
+                    BuildLowerCap(points, stack.Peek().Color);
+                }
+                else if (this.stack.Peek().fPoints.Count == 0)
+                {
+                    BuildLowerCap(points, stack.Peek().Color);
+                }
+
+                OpenTK.Vector3[] wallPoints = null;
+
+                if (simpleMode)
+                {
+                    wallPoints = points;
+                }
+                else
+                {
+                    var previousPoints = this.stack.Peek().fPoints;
+                    if (previousPoints.Count > 0)
+                    {
+                        // Update end points of previous tube,
+                        // and start points of this tube.
+                        float angle = AngleBetween(this.stack.Peek().fMatrix, stack.Peek().Rotation);
+
+                        if (angle > minAngle)
+                        {
+                            float r = angle / (float)(Math.PI / 2);
+                            float scale = 1.0f + r * r * r;
+
+                            OpenTK.Vector3 x1 = new OpenTK.Vector3(1, 0, 0);
+
+                            OpenTK.Vector3 v1 = OpenTK.Vector3.Transform(x1, this.stack.Peek().fMatrix);
+                            OpenTK.Vector3 v2 = OpenTK.Vector3.Transform(x1, this.stack.Peek().Rotation);
+                            OpenTK.Vector3 v3 = (v1 + v2) * 0.5f;
+                            v3.Normalize();
+
+                            OpenTK.Vector3 noScaleDirection = OpenTK.Vector3.Cross(v1, v2);
+                            OpenTK.Vector3 upDirection = OpenTK.Vector3.Cross(noScaleDirection, v3);
+
+                            for (int i = 0; i < numEdges; ++i)
+                            {
+                                OpenTK.Vector3 p = (previousPoints[numEdges + i] + points[i]) * 0.5f;
+                                OpenTK.Vector3 dir = (p - currentPosition);                              
+                                p = currentPosition +
+                                    VectorProjection(noScaleDirection, dir) +
+                                    VectorProjection(upDirection, dir) * scale;
+
+                                previousPoints[numEdges + i] = points[i] = p;
+                            }
+                        }
+                        else
+                        {
+                            for (int i = 0; i < numEdges; ++i)
+                            {
+                                OpenTK.Vector3 p = (previousPoints[numEdges + i] + points[i]) * 0.5f;
+                                previousPoints[numEdges + i] = points[i] = p;
+                            }
+                        }
+
+                        // Render previous tube.
+                        wallPoints = previousPoints.ToArray();
+                    }
+
+                    this.stack.Peek().fPoints = points.ToList();
+                    this.stack.Peek().fMatrix = stack.Peek().Rotation;
+                }
+
+                if (wallPoints != null)
+                {
+                    BuildWalls(wallPoints, stack.Peek().Color);                     
+                }                
+            }
+            else
+            {
+                if (this.stack.Peek().fPoints.Count > 0)
+                {
+                    BuildWalls(
+                       stack.Peek().fPoints.ToArray(),
+                       stack.Peek().Color);
+
+                    BuildUpperCap(
+                        stack.Peek().fPoints.ToArray(),
+                        stack.Peek().Color);
+
+                    stack.Peek().fPoints.Clear();
                 }
             }
 
@@ -543,18 +748,9 @@ namespace Viewer.View
                 if (this.surfacePoints.Count == 3)
                 {
                     // Build new triangle.
-                    OpenTK.Vector3 normal = CalcNormal(
-                        this.surfacePoints[0],
-                        this.surfacePoints[1],
-                        this.surfacePoints[2]);
-
                     Add(this.triVertexes, this.surfacePoints[0]);
                     Add(this.triVertexes, this.surfacePoints[1]);
                     Add(this.triVertexes, this.surfacePoints[2]);
-
-                    Add(this.triNormals, normal);
-                    Add(this.triNormals, normal);
-                    Add(this.triNormals, normal);
 
                     Add(this.triColors, this.surfaceColors[0]);
                     Add(this.triColors, this.surfaceColors[1]);
@@ -563,12 +759,7 @@ namespace Viewer.View
                     Add(this.triVertexes, this.surfacePoints[2]);
                     Add(this.triVertexes, this.surfacePoints[1]);
                     Add(this.triVertexes, this.surfacePoints[0]);
-
-                    normal = normal * (-1.0f);
-                    Add(this.triNormals, normal);
-                    Add(this.triNormals, normal);
-                    Add(this.triNormals, normal);
-
+              
                     Add(this.triColors, this.surfaceColors[2]);
                     Add(this.triColors, this.surfaceColors[1]);
                     Add(this.triColors, this.surfaceColors[0]);
@@ -597,7 +788,7 @@ namespace Viewer.View
             if (!left) { angle = -angle; }
             stack.Peek().Rotation = OpenTK.Matrix4.Mult( 
                 TurnMartix(angle),
-                stack.Peek().Rotation);
+                stack.Peek().Rotation);         
         }
 
         public void Pitch(double? anglePtr, bool up)
@@ -606,7 +797,7 @@ namespace Viewer.View
             if (!up) { angle = -angle; }
             stack.Peek().Rotation = OpenTK.Matrix4.Mult( 
                 PitchMartix(angle),
-                stack.Peek().Rotation);
+                stack.Peek().Rotation);            
         }
 
         public void Roll(double? anglePtr, bool clockwise)
@@ -615,7 +806,7 @@ namespace Viewer.View
             if (!clockwise) { angle = -angle; }
             stack.Peek().Rotation = OpenTK.Matrix4.Mult(
                 RollMartix(angle),
-                stack.Peek().Rotation);
+                stack.Peek().Rotation);            
         }        
 
         public void SurfaceBegin()

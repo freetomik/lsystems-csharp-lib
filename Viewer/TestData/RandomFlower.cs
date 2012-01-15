@@ -18,29 +18,29 @@ namespace Viewer.TestData
         public class ThicknessUp { }
         
         private LSystems.Turtle.StringParser parser = 
-            new LSystems.Turtle.StringParser()
-        {
-            //!!!Angle = 18,            
-            CharToObject = (c, p) =>
-            {
-                switch (c)
-                {
-                    case 'P': return new P();
-                    case 'I': return new I();
-                    case 'L': return new L();
-                    case 'S': return new S();
-                    case 'D': return new D();
-                    case 'W': return new W();
-                    case 'R': return new R();
-                    case '!': return new ThicknessDown();
-                    case '?': return new ThicknessUp();
-                    case 'y': return new LSystems.Turtle.LineColor(1, 1, 0.1);
-                    case 'w': return new LSystems.Turtle.LineColor(1, 0.5, 0.1);
-                    case 'g': return new LSystems.Turtle.LineColor(0.2, 0.9, 0.1);
-                    default: return null;
-                }
-            }
-        };
+            new LSystems.Turtle.StringParser();
+        //{
+        //    //!!!Angle = 18,            
+        //    CharToObject = (c, p) =>
+        //    {
+        //        switch (c)
+        //        {
+        //            case 'P': return new P();
+        //            case 'I': return new I();
+        //            case 'L': return new L();
+        //            case 'S': return new S();
+        //            case 'D': return new D();
+        //            case 'W': return new W();
+        //            case 'R': return new R();
+        //            case '!': return new ThicknessDown();
+        //            case '?': return new ThicknessUp();
+        //            case 'y': return new LSystems.Turtle.LineColor(1, 1, 0.1);
+        //            case 'w': return new LSystems.Turtle.LineColor(1, 0.5, 0.1);
+        //            case 'g': return new LSystems.Turtle.LineColor(0.2, 0.9, 0.1);
+        //            default: return null;
+        //        }
+        //    }
+        //};
 
         [LSystems.Production]        
         public object Produce(P p) { return parser.Produce("I+[+!PR]--//[--L]I[++L][!PR]++//!PR"); }

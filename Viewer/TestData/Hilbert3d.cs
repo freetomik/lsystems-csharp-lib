@@ -10,21 +10,15 @@ namespace Viewer.TestData
         public class C {}
         public class D {}
 
-        private LSystems.Turtle.StringParser parser = 
-            new LSystems.Turtle.StringParser()
+        private LSystems.Turtle.StringParser parser = new LSystems.Turtle.StringParser();
+
+        public Hilbert3d()
         {
-            CharToObject = (c, p) =>
-            {
-                switch (c)
-                {
-                    case 'A': return new A();
-                    case 'B': return new B();
-                    case 'C': return new C();
-                    case 'D': return new D();
-                    default: return null;
-                }
-            }
-        };
+            parser.Register(typeof(A));
+            parser.Register(typeof(B));
+            parser.Register(typeof(C));
+            parser.Register(typeof(D));
+        }
 
         [LSystems.Production]
         public object Produce(A a)

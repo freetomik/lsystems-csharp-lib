@@ -14,18 +14,18 @@ namespace Viewer.TestData
             new LSystems.Turtle.StringParser()
         {
             //!!!Angle = 22.5,            
-            CharToObject = (c, p) =>
-            {
-                switch (c)
-                {
-                    case 'A': return new A();
-                    case 'S': return new S();
-                    case 'L': return new L();
-                    case '!': return new ThicknessDown();
-                    case 'g': return new LSystems.Turtle.LineColor(0.2, 0.9, 0.1);                    
-                    default: return null;
-                }
-            }
+            //CharToObject = (c, p) =>
+            //{
+            //    switch (c)
+            //    {
+            //        case 'A': return new A();
+            //        case 'S': return new S();
+            //        case 'L': return new L();
+            //        case '!': return new ThicknessDown();
+            //        case 'g': return new LSystems.Turtle.LineColor(0.2, 0.9, 0.1);                    
+            //        default: return null;
+            //    }
+            //}
         };
 
         [LSystems.Production]
