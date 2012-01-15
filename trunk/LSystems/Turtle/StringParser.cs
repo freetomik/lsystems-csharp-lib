@@ -8,13 +8,33 @@ namespace LSystems.Turtle
     public class StringParser
     {
         public bool AllowParameters { get; set; }
-               
-        public Func<char, object[], object> CharToObject { get; set; }
+
+        private Dictionary<char, Type> stdTypes = new Dictionary<char, Type>()
+        {
+             { '[', typeof(StartBranchModule) },
+             { ']', typeof(EndBranchModule) },
+             { '%', typeof(CutModule) },
+             { 'F', typeof(F) },
+             { 'f', typeof(f) },
+             { '+', typeof(TurnLeft) },
+             { '-', typeof(TurnRight) },
+             { '|', typeof(TurnAround) },
+             { '^', typeof(PitchUp) },
+             { '&', typeof(PitchDown) },
+             { '\\', typeof(RollLeft) },
+             { '<', typeof(RollLeft) },
+             { '/', typeof(RollRight) },
+             { '>', typeof(RollRight) },
+             { '{', typeof(SurfaceBegin) },
+             { '}', typeof(SurfaceEnd) },
+             { 'a', typeof(Angle) },
+             { 'd', typeof(Distance) },
+             { '#', typeof(LineThickness) }
+        };
 
         public StringParser()
         {
-            this.AllowParameters = true;
-            this.CharToObject = ((a, b) => null);            
+            this.AllowParameters = true;            
         }
 
         public List<object> Produce(string text)
@@ -75,31 +95,6 @@ namespace LSystems.Turtle
 
         private object TransformCharToObject(char c, object[] parameters)
         {
-            return CharToObject(c, parameters) ?? DefaultReplacement(c, parameters);
-        }
-
-        static Dictionary<char, Type> stdTypes = new Dictionary<char, Type>()
-        {
-             { '[', typeof(StartBranchModule) },
-             { ']', typeof(EndBranchModule) },
-             { '%', typeof(CutModule) },
-             { 'F', typeof(F) },
-             { 'f', typeof(f) },
-             { '+', typeof(TurnLeft) },
-             { '-', typeof(TurnRight) },
-             { '|', typeof(TurnAround) },
-             { '^', typeof(PitchUp) },
-             { '&', typeof(PitchDown) },
-             { '\\', typeof(RollLeft) },
-             { '<', typeof(RollLeft) },
-             { '/', typeof(RollRight) },
-             { '>', typeof(RollRight) },
-             { '{', typeof(SurfaceBegin) },
-             { '}', typeof(SurfaceEnd) }
-        };
-
-        private object DefaultReplacement(char c, object[] parameters)
-        {            
             Type type = null;
 
             if (!stdTypes.TryGetValue(c, out type))
@@ -108,6 +103,21 @@ namespace LSystems.Turtle
             }
 
             return Activator.CreateInstance(type, parameters);
+        }
+
+        public void Register(Type type)
+        {
+            if (type.Name.Length != 1)
+            {
+                throw new InvalidOperationException("Can only register types with 1 character length name.");
+            }
+
+            Register(type.Name[0], type);
+        }
+
+        public void Register(char c, Type type)
+        {
+            stdTypes[c] = type;
         }
     }
 }

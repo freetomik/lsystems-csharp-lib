@@ -121,4 +121,14 @@ namespace LSystems.Turtle
     public class SurfaceEnd
     {
     }
+
+    public class Angle : Module<double>
+    {
+        public Angle(double angle) : base(angle) { }
+    }
+
+    public class Distance : Module<double>
+    {
+        public Distance(double angle) : base(angle) { }
+    }    
 }

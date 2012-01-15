@@ -8,18 +8,13 @@ namespace Viewer.TestData
         public class l { };
         public class r { };
 
-        private LSystems.Turtle.StringParser parser = new LSystems.Turtle.StringParser()
+        private LSystems.Turtle.StringParser parser = new LSystems.Turtle.StringParser();
+
+        public DragonCurve()
         {
-            CharToObject = (c, p) =>
-            {
-                switch (c)
-                {
-                    case 'l': return new l();
-                    case 'r': return new r();
-                    default: return null;
-                }
-            }
-        };
+            parser.Register(typeof(l));
+            parser.Register(typeof(r));            
+        }
 
         [LSystems.Production]
         public object lRule(l p)
@@ -40,7 +35,7 @@ namespace Viewer.TestData
 
         public int Depth
         {
-            get { return 10; }
+            get { return 2; }
         }
 
         public LSystems.RewriteDirection RewriteDirection

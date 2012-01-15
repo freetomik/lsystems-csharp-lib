@@ -16,31 +16,41 @@ namespace Viewer.TestData
         public class R { } // flower
         public class ThicknessDown { }
         public class ThicknessUp { }
-        
-        private LSystems.Turtle.StringParser parser = 
-            new LSystems.Turtle.StringParser()
+
+        public class Yellow : LSystems.Turtle.LineColor 
         {
-            //!!!Angle = 18,            
-            CharToObject = (c, p) =>
-            {
-                switch (c)
-                {
-                    case 'P': return new P();
-                    case 'I': return new I();
-                    case 'L': return new L();
-                    case 'S': return new S();
-                    case 'D': return new D();
-                    case 'W': return new W();
-                    case 'R': return new R();
-                    case '!': return new ThicknessDown();
-                    case '?': return new ThicknessUp();
-                    case 'y': return new LSystems.Turtle.LineColor(1, 1, 0.1);
-                    case 'w': return new LSystems.Turtle.LineColor(1, 0.5, 0.1);
-                    case 'g': return new LSystems.Turtle.LineColor(0.2, 0.9, 0.1);
-                    default: return null;
-                }
-            }
-        };
+            public Yellow() : base(1, 1, 0.1) {} 
+        }
+
+        public class Green : LSystems.Turtle.LineColor
+        {
+            public Green() : base(0.2, 0.9, 0.1) { }
+        }
+
+        public class White : LSystems.Turtle.LineColor
+        {
+            public White() : base(1, 0.5, 0.1) { }
+        }
+        
+        private LSystems.Turtle.StringParser parser = new LSystems.Turtle.StringParser();
+
+        public Flower()
+        {
+            parser.Register(typeof(P));
+            parser.Register(typeof(I));
+            parser.Register(typeof(L));
+            parser.Register(typeof(S));
+            parser.Register(typeof(D));
+            parser.Register(typeof(W));
+            parser.Register(typeof(R));
+
+            parser.Register('!', typeof(ThicknessDown));
+            parser.Register('?', typeof(ThicknessUp));
+
+            parser.Register('y', typeof(Yellow));
+            parser.Register('w', typeof(White));
+            parser.Register('g', typeof(Green));
+        }        
 
         [LSystems.Production]        
         public object Produce(P p) { return parser.Produce("I+[+!PR]--//[--L]I[++L][!PR]++//!PR"); }
@@ -77,6 +87,15 @@ namespace Viewer.TestData
         {
             Turtle.Thickness = 2 * Turtle.Thickness;
         }
+
+        [LSystems.Turtle.Interpret]
+        public void Draw(Green c) { Turtle.SetColor(c.Value.R, c.Value.G, c.Value.B); }
+
+        [LSystems.Turtle.Interpret]
+        public void Draw(Yellow c) { Turtle.SetColor(c.Value.R, c.Value.G, c.Value.B); }
+
+        [LSystems.Turtle.Interpret]
+        public void Draw(White c) { Turtle.SetColor(c.Value.R, c.Value.G, c.Value.B); }
         
         #region IRewriteRules Member
 
@@ -85,9 +104,10 @@ namespace Viewer.TestData
             get
             {
                 return Produce(
-                    new LSystems.Turtle.LineColor(0, 0.7, 0),
+                    //new LSystems.Turtle.LineColor(0, 0.7, 0),
                     new LSystems.Turtle.LineThickness(30),
                     new LSystems.Turtle.TurnLeft(90), 
+                    new LSystems.Turtle.Angle(18),
                     new P());
             }
         }
