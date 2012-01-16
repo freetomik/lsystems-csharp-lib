@@ -104,8 +104,9 @@ namespace Viewer.TestData
             get
             {
                 return Produce(
-                    //new LSystems.Turtle.LineColor(0, 0.7, 0),
-                    new LSystems.Turtle.LineThickness(30),
+                    new Green(),
+                    new LSystems.Turtle.LineThickness(10),
+                    new LSystems.Turtle.Distance(10),
                     new LSystems.Turtle.TurnLeft(90), 
                     new LSystems.Turtle.Angle(18),
                     new P());

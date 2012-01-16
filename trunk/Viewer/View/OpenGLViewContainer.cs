@@ -29,7 +29,6 @@ namespace Viewer.View
         private List<float> colors = new List<float>();
         private int numQuadVertexes = 0;
 
-
         private IntPtr triVertexesPtr = IntPtr.Zero;
         private IntPtr triNormalsPtr = IntPtr.Zero;
         private IntPtr triColorsPtr = IntPtr.Zero;
@@ -327,9 +326,15 @@ namespace Viewer.View
             ResetState();
 
             this.Push();
-
+            
             if (this.system != null)
             {
+                Debug.WriteLine("---------------------");
+                foreach (object obj in (IEnumerable)this.system.String)
+                {
+                    Debug.WriteLine(string.Format("{0}", obj.GetType()));
+                }                
+
                 if (this.system.Definition is LSystems.Turtle.SystemDefinition)
                 {
                     ((LSystems.Turtle.SystemDefinition)this.system.Definition).Turtle = this;
@@ -438,7 +443,7 @@ namespace Viewer.View
                 this.fPoints = other.fPoints;
                 this.fMatrix = other.fMatrix;
 
-                other.fPoints = new List<OpenTK.Vector3>();                
+                other.fPoints = new List<OpenTK.Vector3>();                    
             }
         }
 
@@ -579,7 +584,7 @@ namespace Viewer.View
             return result * (length * (float)Math.Cos(OpenTK.Vector3.CalculateAngle(basis, v)));
         }
 
-        private const float minAngle = 0.0001f;
+        private const float minAngle = 0.005f;
 
         public void Forward(double? distPtr, bool drawLine)
         {
