@@ -8,25 +8,19 @@ namespace Viewer.TestData
         public class A { }
         public class S { }
         public class L { }
+        public class Green { }
         public class ThicknessDown { }
-        
-        private LSystems.Turtle.StringParser parser = 
-            new LSystems.Turtle.StringParser()
+
+        private LSystems.Turtle.StringParser parser = new LSystems.Turtle.StringParser();
+
+        public Bush()
         {
-            //!!!Angle = 22.5,            
-            //CharToObject = (c, p) =>
-            //{
-            //    switch (c)
-            //    {
-            //        case 'A': return new A();
-            //        case 'S': return new S();
-            //        case 'L': return new L();
-            //        case '!': return new ThicknessDown();
-            //        case 'g': return new LSystems.Turtle.LineColor(0.2, 0.9, 0.1);                    
-            //        default: return null;
-            //    }
-            //}
-        };
+            parser.Register(typeof(A));
+            parser.Register(typeof(S));
+            parser.Register(typeof(L));
+            parser.Register('!', typeof(ThicknessDown));
+            parser.Register('g', typeof(Green));
+        }        
 
         [LSystems.Production]
         public object Produce(A a)
@@ -58,6 +52,12 @@ namespace Viewer.TestData
             Turtle.Thickness = 0.5 * Turtle.Thickness;
         }
 
+        [LSystems.Turtle.Interpret]
+        public void DrawGreen(Green g)
+        {
+            Turtle.SetColor(0.2, 0.9, 0.1);
+        }        
+
         #region IRewriteRules Member
 
         public object Axiom
@@ -65,8 +65,10 @@ namespace Viewer.TestData
             get
             {
                 return Produce(
-                    new LSystems.Turtle.LineThickness(30), 
-                    new LSystems.Turtle.LineColor(0.2, 0.2, 0.1), 
+                    new LSystems.Turtle.LineThickness(30),
+                    new LSystems.Turtle.Distance(100),
+                    new LSystems.Turtle.Angle(22.5), 
+                    new LSystems.Turtle.LineColor(0.9, 0.6, 0.1), 
                     new LSystems.Turtle.TurnLeft(90), 
                     new A());
             }
