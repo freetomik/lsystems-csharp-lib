@@ -36,6 +36,13 @@
             this.toolStripButtonUndoCamera = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.toolStripLabelStatistics = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripDropDownButtonBuildType = new System.Windows.Forms.ToolStripDropDownButton();
+            this.simpleToolStripMenuItemRenderTypeSimple = new System.Windows.Forms.ToolStripMenuItem();
+            this.simpleToolStripMenuItemRenderTypeSmooth = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripLabel1 = new System.Windows.Forms.ToolStripLabel();
+            this.toolStripComboBoxNumEdges = new System.Windows.Forms.ToolStripComboBox();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -61,6 +68,11 @@
             this.toolStripSeparator1,
             this.toolStripButtonUndoCamera,
             this.toolStripSeparator2,
+            this.toolStripDropDownButtonBuildType,
+            this.toolStripSeparator4,
+            this.toolStripLabel1,
+            this.toolStripComboBoxNumEdges,
+            this.toolStripSeparator3,
             this.toolStripLabelStatistics});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
@@ -94,8 +106,8 @@
             // 
             this.toolStripButtonUndoCamera.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonUndoCamera.Name = "toolStripButtonUndoCamera";
-            this.toolStripButtonUndoCamera.Size = new System.Drawing.Size(79, 22);
-            this.toolStripButtonUndoCamera.Text = "Reset Camera";
+            this.toolStripButtonUndoCamera.Size = new System.Drawing.Size(64, 22);
+            this.toolStripButtonUndoCamera.Text = "Reset View";
             this.toolStripButtonUndoCamera.Click += new System.EventHandler(this.toolStripButtonUndoCamera_Click);
             // 
             // toolStripSeparator2
@@ -108,6 +120,54 @@
             this.toolStripLabelStatistics.Name = "toolStripLabelStatistics";
             this.toolStripLabelStatistics.Size = new System.Drawing.Size(38, 22);
             this.toolStripLabelStatistics.Text = "STATS";
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripDropDownButtonBuildType
+            // 
+            this.toolStripDropDownButtonBuildType.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.simpleToolStripMenuItemRenderTypeSimple,
+            this.simpleToolStripMenuItemRenderTypeSmooth});
+            this.toolStripDropDownButtonBuildType.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripDropDownButtonBuildType.Name = "toolStripDropDownButtonBuildType";
+            this.toolStripDropDownButtonBuildType.Size = new System.Drawing.Size(44, 22);
+            this.toolStripDropDownButtonBuildType.Text = "TEXT";
+            // 
+            // simpleToolStripMenuItemRenderTypeSimple
+            // 
+            this.simpleToolStripMenuItemRenderTypeSimple.Name = "simpleToolStripMenuItemRenderTypeSimple";
+            this.simpleToolStripMenuItemRenderTypeSimple.Size = new System.Drawing.Size(152, 22);
+            this.simpleToolStripMenuItemRenderTypeSimple.Text = "Simple";
+            this.simpleToolStripMenuItemRenderTypeSimple.Click += new System.EventHandler(this.simpleToolStripMenuItemRenderTypeSimple_Click);
+            // 
+            // simpleToolStripMenuItemRenderTypeSmooth
+            // 
+            this.simpleToolStripMenuItemRenderTypeSmooth.Name = "simpleToolStripMenuItemRenderTypeSmooth";
+            this.simpleToolStripMenuItemRenderTypeSmooth.Size = new System.Drawing.Size(152, 22);
+            this.simpleToolStripMenuItemRenderTypeSmooth.Text = "Smooth";
+            this.simpleToolStripMenuItemRenderTypeSmooth.Click += new System.EventHandler(this.simpleToolStripMenuItemRenderTypeSmooth_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+            // 
+            // toolStripLabel1
+            // 
+            this.toolStripLabel1.Name = "toolStripLabel1";
+            this.toolStripLabel1.Size = new System.Drawing.Size(40, 22);
+            this.toolStripLabel1.Text = "Edges:";
+            // 
+            // toolStripComboBoxNumEdges
+            // 
+            this.toolStripComboBoxNumEdges.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.toolStripComboBoxNumEdges.DropDownWidth = 50;
+            this.toolStripComboBoxNumEdges.Name = "toolStripComboBoxNumEdges";
+            this.toolStripComboBoxNumEdges.Size = new System.Drawing.Size(75, 25);
+            this.toolStripComboBoxNumEdges.SelectedIndexChanged += new System.EventHandler(this.toolStripComboBoxNumEdges_SelectedIndexChanged);
             // 
             // OpenGLViewContainer
             // 
@@ -137,5 +197,12 @@
         private System.Windows.Forms.ToolStripButton toolStripButtonUndoCamera;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripLabel toolStripLabelStatistics;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripDropDownButton toolStripDropDownButtonBuildType;
+        private System.Windows.Forms.ToolStripMenuItem simpleToolStripMenuItemRenderTypeSimple;
+        private System.Windows.Forms.ToolStripMenuItem simpleToolStripMenuItemRenderTypeSmooth;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripLabel toolStripLabel1;
+        private System.Windows.Forms.ToolStripComboBox toolStripComboBoxNumEdges;
     }
 }

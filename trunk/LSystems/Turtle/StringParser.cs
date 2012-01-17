@@ -102,7 +102,14 @@ namespace LSystems.Turtle
                 return null;
             }
 
-            return Activator.CreateInstance(type, parameters);
+            try
+            {
+                return Activator.CreateInstance(type, parameters);
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         public void Register(Type type)

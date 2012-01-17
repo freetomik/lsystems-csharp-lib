@@ -86,10 +86,22 @@ namespace Viewer.View
             }
         }
 
+        private const int MinEdgeCount = 3;
+        private const int DefaultEdgeCount = 12;
+        private const int MaxEdgeCount = 16;
 
         void OpenGLViewContainerOnLoad(object sender, EventArgs e)
         {
             UpdateProjectionButtons();
+            UpdateModeButtons();
+
+            for (int i = MinEdgeCount; i <= MaxEdgeCount; ++i)
+            {
+                this.toolStripComboBoxNumEdges.Items.Add(i.ToString());
+            }
+
+            this.toolStripComboBoxNumEdges.SelectedIndex = (DefaultEdgeCount - MinEdgeCount);
+            
 
             this.loaded = true;
             
@@ -101,8 +113,7 @@ namespace Viewer.View
             GL.Light(LightName.Light0, LightParameter.Diffuse, new float[] { 1, 1, 1, 1 });
             GL.Light(LightName.Light0, LightParameter.Specular, new float[] { 0, 0, 0, 1 });
 
-            // Position the light.
-            //var lightPos = new OpenTK.Vector4(0, 0, -1, 0);
+            // Position the light.            
             GL.Light(LightName.Light0, LightParameter.Position, new float[] { 0, 0, 1, 0 });
 
             var materialKa = new OpenTK.Vector4(1, 1, 1, 1);
@@ -115,14 +126,8 @@ namespace Viewer.View
             GL.Enable(EnableCap.ColorMaterial);
             GL.ColorMaterial(MaterialFace.FrontAndBack, ColorMaterialParameter.AmbientAndDiffuse);
 
-            //GL.Enable(EnableCap.AutoNormal);
             GL.Enable(EnableCap.CullFace);
-            //GL.CullFace(CullFaceMode.Front);
-
             GL.Enable(EnableCap.Lighting);            
-
-            //GL.ShadeModel(ShadingModel.Flat);
-            //GL.LightModel(LightModelParameter.LightModelTwoSide, 1);
 
             float[] a = new float [] {0.3f, 0.3f, 0.3f, 1.0f };         
             GL.LightModel(LightModelParameter.LightModelAmbient, a);
@@ -329,11 +334,11 @@ namespace Viewer.View
             
             if (this.system != null)
             {
-                Debug.WriteLine("---------------------");
-                foreach (object obj in (IEnumerable)this.system.String)
-                {
-                    Debug.WriteLine(string.Format("{0}", obj.GetType()));
-                }                
+                //Debug.WriteLine("---------------------");
+                //foreach (object obj in (IEnumerable)this.system.String)
+                //{
+                //    Debug.WriteLine(string.Format("{0}", obj.GetType()));
+                //}                
 
                 if (this.system.Definition is LSystems.Turtle.SystemDefinition)
                 {
@@ -395,7 +400,7 @@ namespace Viewer.View
         #region ITurtle Member        
 
 
-        private int numEdges = 12;
+        private int numEdges = 4;
         private bool simpleMode = false;
 
         private Stack<State> stack = new Stack<State>();
@@ -581,7 +586,7 @@ namespace Viewer.View
             OpenTK.Vector3 result = basis;
             result.Normalize();
 
-            return result * (length * (float)Math.Cos(OpenTK.Vector3.CalculateAngle(basis, v)));
+            return result * ((float)OpenTK.Vector3.Dot(result, v));
         }
 
         private const float minAngle = 0.005f;
@@ -606,7 +611,7 @@ namespace Viewer.View
 
                     float angle = OpenTK.Vector3.CalculateAngle(vx1, vx2);
                     OpenTK.Vector3 rotateAxis = OpenTK.Vector3.Cross(vx1, vx2);
-
+                
                     for (int i = 0; i < numEdges; ++i)
                     {
                         var p = this.stack.Peek().fPoints[numEdges + i] - currentPosition;
@@ -614,7 +619,7 @@ namespace Viewer.View
 
                         if (angle > minAngle)
                         {
-                            p = OpenTK.Vector3.Transform(p, OpenTK.Matrix4.Rotate(rotateAxis, angle));
+                            p = OpenTK.Vector3.Transform(p, OpenTK.Matrix4.CreateFromAxisAngle(rotateAxis, angle));
                         }
 
                         p = p * thickness;
@@ -884,11 +889,21 @@ namespace Viewer.View
             this.toolStripButtonPerspective.Checked = !isOrtho;
         }
 
+        private void UpdateModeButtons()
+        {
+            this.simpleToolStripMenuItemRenderTypeSimple.Checked = this.simpleMode;
+            this.simpleToolStripMenuItemRenderTypeSmooth.Checked = !this.simpleMode;
+
+            this.toolStripDropDownButtonBuildType.Text = this.simpleMode
+                ? "Simple"
+                : "Smooth";
+        }
+
         private void toolStripButtonOrtho_Click(object sender, EventArgs e)
         {
             this.isOrtho = true;
 
-            UpdateProjectionButtons();
+            UpdateProjectionButtons();            
 
             this.glControl1.Invalidate();
         }
@@ -907,6 +922,31 @@ namespace Viewer.View
             this.cameraAngle = new OpenTK.Vector3(0, 0, 0);
 
             this.glControl1.Invalidate();
+        }
+
+        private void simpleToolStripMenuItemRenderTypeSimple_Click(object sender, EventArgs e)
+        {
+            this.simpleMode = true;
+
+            UpdateModeButtons();
+
+            SetSystem(this.system);
+        }
+
+        private void simpleToolStripMenuItemRenderTypeSmooth_Click(object sender, EventArgs e)
+        {
+            this.simpleMode = false;
+
+            UpdateModeButtons();
+
+            SetSystem(this.system);
+        }
+
+        private void toolStripComboBoxNumEdges_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.numEdges = this.toolStripComboBoxNumEdges.SelectedIndex + MinEdgeCount;
+
+            SetSystem(this.system);
         }
     }
 }

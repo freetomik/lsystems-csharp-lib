@@ -41,7 +41,7 @@ namespace Viewer.View
             initialDirectory = System.IO.Directory.GetCurrentDirectory();
 
             MainViewModel mainModel = new MainViewModel(this);
-            mainModel.Load(@".\TestData\Flower.cs");            
+            mainModel.Load(@".\TestData\Spiral.cs");            
             this.DataContext = mainModel;            
 
 
