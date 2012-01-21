@@ -44,6 +44,7 @@ namespace Viewer.View
                 
         private System.Drawing.Point mousePos = new System.Drawing.Point(0, 0);
         private OpenTK.Vector3 cameraAngle = new OpenTK.Vector3(0, 0, 0);
+        private float cameraScale = 1;
 
         public OpenGLViewContainer()
         {
@@ -77,8 +78,18 @@ namespace Viewer.View
             {
                 var newPos = e.Location;
 
-                this.cameraAngle.X += (newPos.Y - this.mousePos.Y) * 0.5f;
-                this.cameraAngle.Y += (newPos.X - this.mousePos.X) * 0.5f;
+                if (e.Button == MouseButtons.Left)
+                {
+                    this.cameraAngle.X += (newPos.Y - this.mousePos.Y) * 0.5f;
+                    this.cameraAngle.Y += (newPos.X - this.mousePos.X) * 0.5f;
+                }
+                else
+                {
+                    this.cameraScale -= 0.1f * (newPos.Y - this.mousePos.Y);
+                    if (cameraScale <= 0.1f)
+                        cameraScale = 0.1f;
+                }
+                
 
                 this.glControl1.Invalidate();
 
@@ -131,6 +142,8 @@ namespace Viewer.View
 
             float[] a = new float [] {0.3f, 0.3f, 0.3f, 1.0f };         
             GL.LightModel(LightModelParameter.LightModelAmbient, a);
+
+            GL.Enable(EnableCap.Normalize);
         }
 
         void glControl1_Resize(object sender, EventArgs e)
@@ -198,6 +211,7 @@ namespace Viewer.View
 
                 GL.Rotate(cameraAngle.X, 1, 0, 0);
                 GL.Rotate(cameraAngle.Y, 0, 1, 0);
+                GL.Scale(cameraScale, cameraScale, cameraScale);
 
                 GL.Translate((this.maxPoint + this.minPoint) * (-0.5f));
 
@@ -920,6 +934,7 @@ namespace Viewer.View
         private void toolStripButtonUndoCamera_Click(object sender, EventArgs e)
         {
             this.cameraAngle = new OpenTK.Vector3(0, 0, 0);
+            this.cameraScale = 1.0f;
 
             this.glControl1.Invalidate();
         }
